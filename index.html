@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ISEYAA | Ogun State Digital Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // Brand Identity Overrides
+              emerald: {
+                50: '#F1FDF6',
+                100: '#DEFAE9',
+                200: '#C0F4D6',
+                300: '#93EAB9',
+                400: '#60D995',
+                500: '#05A446', // Base Brand Color
+                600: '#038237',
+                700: '#03672D',
+                800: '#035226',
+                900: '#024321', // Deep Brand Green
+                950: '#012513',
+              },
+              brand: {
+                yellow: '#FFE94C',
+                dark: '#012513',
+                cream: '#FDFBF7'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #FDFBF7; /* Brand Cream Background */
+      }
+      /* Custom scrollbar for dashboard feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #05A446; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #038237; 
+      }
+      
+      /* Animation for the landing page hero */
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body class="text-slate-900 antialiased">
+    <div id="root"></div>
+  </body>
+</html>
