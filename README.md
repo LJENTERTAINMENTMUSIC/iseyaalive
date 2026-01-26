@@ -1,12 +1,11 @@
-
 # IṢẸ́YÁÁ | Ogun State Digital OS
 
-Deployment instructions for **iseyaa.org**:
+Deployment instructions for **iseyaa.com**:
 
 1. **GitHub Setup**: 
    - Push this repository to GitHub.
    - Go to **Settings > Pages**.
-   - Under **Custom Domain**, enter `iseyaa.org`.
+   - Under **Custom Domain**, enter `iseyaa.com`.
 
 2. **DNS Configuration**:
    - Point your root domain (`@`) to these GitHub IPs:
