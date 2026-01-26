@@ -1,7 +1,8 @@
 {
-  "name": "ISEYAA NOW NOW- Ogun State Digital OS",
-  "description": "The Integrated Sports, Events, Youth, Arts & Attractions super-platform. An AI-powered digital economic engine unifying tourism, transport, commerce, and governance for Ogun State.",
+  "name": "IṢẸ́YÁÁ | Ogun State Digital OS",
+  "description": "The Integrated Sports, Events, Youth, Arts & Attractions super-platform. An AI-powered digital economic engine unifying tourism, transport, commerce, and governance.",
   "requestFramePermissions": [
-    "geolocation"
+    "geolocation",
+    "camera"
   ]
 }
