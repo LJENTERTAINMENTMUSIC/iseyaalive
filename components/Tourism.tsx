@@ -26,11 +26,74 @@ import {
   Layers,
   ArrowRight,
   Maximize2,
-  Radio
+  Radio,
+  Loader2,
+  Thermometer,
+  CloudSun,
+  Users,
+  Fingerprint,
+  Zap,
+  Sparkles,
+  SearchCode,
+  ShieldCheck,
+  Target,
+  QrCode,
+  Smartphone
 } from 'lucide-react';
 import { Attraction } from '../types';
 
-const INITIAL_ATTRACTIONS: Attraction[] = [
+// Specialized sub-component for high-performance image delivery
+const OptimizedImage: React.FC<{ 
+    src: string; 
+    alt: string; 
+    className?: string; 
+    imgClassName?: string;
+}> = ({ src, alt, className = "", imgClassName = "" }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
+
+    return (
+        <div className={`relative overflow-hidden bg-slate-100 ${className}`}>
+            {!isLoaded && !hasError && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 animate-[shimmer_2s_infinite] bg-[length:200%_100%]" />
+                    <Camera className="absolute w-8 h-8 text-slate-200" />
+                </div>
+            )}
+            {hasError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 text-slate-300">
+                    <Camera className="w-8 h-8 mb-2" />
+                    <span className="text-[8px] font-black uppercase">Signal Lost</span>
+                </div>
+            )}
+            <img 
+                src={src} 
+                alt={alt} 
+                loading="lazy"
+                onLoad={() => setIsLoaded(true)}
+                onError={() => setHasError(true)}
+                className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'} ${imgClassName}`}
+            />
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes shimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
+                }
+            `}} />
+        </div>
+    );
+};
+
+interface ExtendedAttraction extends Attraction {
+    weather?: string;
+    temperature?: number;
+    status: 'Operational' | 'Limited Access' | 'Maintenance';
+    distance?: string;
+    historicalEra: string;
+    neuralFormFactor: number;
+}
+
+const INITIAL_ATTRACTIONS: ExtendedAttraction[] = [
   {
     id: '1',
     name: 'Olumo Rock Discovery',
@@ -40,18 +103,30 @@ const INITIAL_ATTRACTIONS: Attraction[] = [
     category: 'Heritage',
     description: 'The ancient fortress of the Egba people. Features include natural tunnels, historic caves, and the legendary shrines of Lisabi.',
     ticketPrice: 5000,
-    hasVR: true
+    hasVR: true,
+    weather: 'Sunny',
+    temperature: 28,
+    status: 'Operational',
+    distance: '2.4km from Center',
+    historicalEra: '19th Century',
+    neuralFormFactor: 98
   },
   {
     id: '2',
-    name: 'Obasanjo Presidential Library',
+    name: 'Obasanjo Library Hub',
     location: 'Oke-Mosan, Abeokuta',
     image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=1976&auto=format&fit=crop',
     rating: 4.7,
     category: 'Museum',
     description: 'Africa\'s first presidential library. Explore the life, times, and achievements of Chief Olusegun Obasanjo.',
     ticketPrice: 7500,
-    hasVR: false
+    hasVR: false,
+    weather: 'Clear',
+    temperature: 30,
+    status: 'Operational',
+    distance: '5.1km from Center',
+    historicalEra: 'Contemporary',
+    neuralFormFactor: 85
   },
   {
     id: '3',
@@ -62,7 +137,13 @@ const INITIAL_ATTRACTIONS: Attraction[] = [
     category: 'Heritage',
     description: 'Ancient stone-paved shrine and reputed burial ground of the legendary Bilikisu Sungbo, linked to the Queen of Sheba.',
     ticketPrice: 5000,
-    hasVR: true
+    hasVR: true,
+    weather: 'Cloudy',
+    temperature: 26,
+    status: 'Limited Access',
+    distance: '18km from Center',
+    historicalEra: 'Ancient',
+    neuralFormFactor: 94
   },
   {
     id: '4',
@@ -73,14 +154,20 @@ const INITIAL_ATTRACTIONS: Attraction[] = [
     category: 'Nature',
     description: 'One of the last remaining tropical rainforests in the South-West. Spot rare elephants and exotic birds.',
     ticketPrice: 12000,
-    hasVR: false
+    hasVR: false,
+    weather: 'Rainy',
+    temperature: 24,
+    status: 'Operational',
+    distance: '42km from Center',
+    historicalEra: 'Cenozoic Era',
+    neuralFormFactor: 91
   }
 ];
 
 const HERITAGE_STORIES = [
   {
     id: 'h1',
-    title: 'Legend of Lisabi Agbongbo Akala',
+    title: 'Legend of Lisabi',
     narrator: 'Chief Ifayemi',
     type: 'audio',
     category: 'Folk Legend',
@@ -92,7 +179,7 @@ const HERITAGE_STORIES = [
   },
   {
     id: 'h2',
-    title: 'Adire: The Visual Language',
+    title: 'Adire: Visual Language',
     narrator: 'Iya Heritage Hub',
     type: 'video',
     category: 'Craftsmanship',
@@ -106,15 +193,26 @@ const HERITAGE_STORIES = [
 
 export const Tourism: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'explore' | 'archive' | 'agent'>('explore');
-  const [attractions, setAttractions] = useState<Attraction[]>(INITIAL_ATTRACTIONS);
-  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
+  const [attractions, setAttractions] = useState<ExtendedAttraction[]>(INITIAL_ATTRACTIONS);
+  const [selectedAttraction, setSelectedAttraction] = useState<ExtendedAttraction | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeArchiveStory, setActiveArchiveStory] = useState<typeof HERITAGE_STORIES[0] | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedResult, setScannedResult] = useState<ExtendedAttraction | null>(null);
 
-  const [newAttr, setNewAttr] = useState<Partial<Attraction>>({
+  const [newAttr, setNewAttr] = useState<Partial<ExtendedAttraction>>({
     name: '', location: '', image: '', category: 'Experience', ticketPrice: 5000, description: ''
   });
+
+  const handleNeuralScan = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+        setIsScanning(false);
+        const randomAttr = attractions[Math.floor(Math.random() * attractions.length)];
+        setScannedResult(randomAttr);
+    }, 2500);
+  };
 
   const handleAddAttraction = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,12 +220,15 @@ export const Tourism: React.FC = () => {
         alert("Minimum state-standard ticket price is ₦5,000.");
         return;
     }
-    const fullAttr: Attraction = {
+    const fullAttr: ExtendedAttraction = {
         ...newAttr,
         id: Date.now().toString(),
         rating: 5.0,
         hasVR: false,
-    } as Attraction;
+        status: 'Operational',
+        historicalEra: 'New Discovery',
+        neuralFormFactor: 100
+    } as ExtendedAttraction;
     setAttractions([fullAttr, ...attractions]);
     setIsAdding(false);
     setNewAttr({ name: '', location: '', image: '', category: 'Experience', ticketPrice: 5000, description: '' });
@@ -136,22 +237,101 @@ export const Tourism: React.FC = () => {
   return (
     <div className="bg-[#FDFBF7] min-h-screen">
       
+      {/* NEURAL DISCOVERY SCANNER OVERLAY */}
+      {isScanning && (
+          <div className="fixed inset-0 z-[500] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center text-center p-12">
+              <div className="relative w-80 h-80 mb-12">
+                  <div className="absolute inset-0 border-[15px] border-emerald-500/10 rounded-full"></div>
+                  <div className="absolute inset-0 border-[15px] border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                      <SearchCode className="w-24 h-24 text-emerald-500 animate-pulse" />
+                  </div>
+                  {/* The Scanning Bar */}
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500 shadow-[0_0_20px_#10b981] animate-[scan_2s_ease-in-out_infinite] z-20"></div>
+              </div>
+              <div className="space-y-4">
+                  <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Neural Scan</h3>
+                  <p className="text-emerald-500 font-bold uppercase tracking-[0.6em] text-xs">Triangulating State Cultural Nodes...</p>
+              </div>
+          </div>
+      )}
+
+      {/* DISCOVERY RESULT MODAL */}
+      {scannedResult && !isScanning && (
+          <div className="fixed inset-0 z-[450] bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in zoom-in-95 duration-500">
+               <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-4xl overflow-hidden border-[15px] border-white/20 relative">
+                   <div className="absolute top-8 right-8 z-30">
+                       <button onClick={() => setScannedResult(null)} className="p-4 bg-white/90 backdrop-blur rounded-full text-slate-900 shadow-2xl hover:scale-110 active:scale-90 transition-all"><X className="w-8 h-8" /></button>
+                   </div>
+                   <div className="flex flex-col lg:flex-row h-[600px]">
+                        <div className="lg:w-1/2 relative group overflow-hidden">
+                             <img src={scannedResult.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[10s]" />
+                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                             <div className="absolute bottom-8 left-8">
+                                 <span className="bg-emerald-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Discovery Match Found</span>
+                             </div>
+                        </div>
+                        <div className="lg:w-1/2 p-16 flex flex-col justify-between">
+                            <div className="space-y-6">
+                                <p className="text-emerald-600 font-black text-[10px] uppercase tracking-[0.5em]">{scannedResult.category} Node Identified</p>
+                                <h2 className="text-5xl font-black text-slate-900 tracking-tighter italic uppercase leading-none">{scannedResult.name}</h2>
+                                <p className="text-slate-500 text-lg leading-relaxed italic">"{scannedResult.description}"</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
+                                        <Award className="w-6 h-6 text-emerald-600" />
+                                        <div><p className="text-[8px] font-black text-slate-400 uppercase">Neural Rank</p><p className="font-bold text-slate-900 text-lg">Top 1%</p></div>
+                                    </div>
+                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
+                                        <Zap className="w-6 h-6 text-emerald-600" />
+                                        <div><p className="text-[8px] font-black text-slate-400 uppercase">Power Status</p><p className="font-bold text-slate-900 text-lg">High</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={() => { setSelectedAttraction(scannedResult); setScannedResult(null); }} className="w-full py-7 bg-slate-900 text-white rounded-full font-black text-xl hover:bg-emerald-600 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-4">
+                                Initialize Travel Protocol <ArrowRight className="w-6 h-6" />
+                            </button>
+                        </div>
+                   </div>
+               </div>
+          </div>
+      )}
+
       {/* ATTRACTION BOOKING OVERLAY */}
       {selectedAttraction && (
           <div className="fixed inset-0 z-[200] bg-emerald-950/98 backdrop-blur-3xl flex items-center justify-center p-4 md:p-12 animate-in fade-in duration-500" role="dialog" aria-labelledby="attraction-title">
               <div className="bg-white w-full max-w-7xl h-full md:h-auto md:max-h-[92vh] rounded-[4rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row border-[10px] border-white/20">
                   <div className="lg:w-3/5 bg-slate-200 relative group overflow-hidden">
-                      <img src={selectedAttraction.image} className="w-full h-full object-cover transition-transform duration-[12s] group-hover:scale-125" alt={`Panoramic view of ${selectedAttraction.name}`} />
+                      <OptimizedImage 
+                        src={selectedAttraction.image} 
+                        alt={selectedAttraction.name}
+                        className="w-full h-full"
+                        imgClassName="transition-transform duration-[12s] group-hover:scale-125"
+                      />
                       <button 
                         onClick={() => setSelectedAttraction(null)} 
-                        className="absolute top-8 left-8 p-6 bg-white/90 backdrop-blur-md rounded-full shadow-2xl text-slate-900 transition-all hover:rotate-90"
+                        className="absolute top-8 left-8 p-6 bg-white/90 backdrop-blur-md rounded-full shadow-2xl text-slate-900 transition-all hover:rotate-90 z-30"
                         aria-label="Close attraction details"
                       >
                         <X className="w-8 h-8" />
                       </button>
-                      <div className="absolute bottom-8 left-8">
+                      <div className="absolute bottom-8 left-8 flex gap-4 z-20">
                           <div className="bg-white/95 backdrop-blur px-8 py-4 rounded-[2rem] text-[10px] font-black text-emerald-800 border border-white shadow-2xl uppercase tracking-[0.4em] flex items-center gap-3">
                               <MapPin className="w-5 h-5" /> {selectedAttraction.location}
+                          </div>
+                          <div className="bg-white/95 backdrop-blur px-8 py-4 rounded-[2rem] text-[10px] font-black text-blue-600 border border-white shadow-2xl uppercase tracking-[0.4em] flex items-center gap-3">
+                              <CloudSun className="w-5 h-5" /> {selectedAttraction.temperature}°C • {selectedAttraction.weather}
+                          </div>
+                      </div>
+                      
+                      {/* Telemetry Overlays */}
+                      <div className="absolute top-8 right-8 space-y-4 z-20">
+                          <div className="bg-black/60 backdrop-blur px-5 py-3 rounded-2xl border border-white/10 text-white flex items-center gap-4">
+                              <div className="w-2 h-10 bg-emerald-500 rounded-full"></div>
+                              <div><p className="text-[8px] font-black uppercase text-slate-400">Crowd Density</p><p className="font-bold text-lg">Low (12%)</p></div>
+                          </div>
+                          <div className="bg-black/60 backdrop-blur px-5 py-3 rounded-2xl border border-white/10 text-white flex items-center gap-4">
+                              <div className="w-2 h-10 bg-blue-500 rounded-full"></div>
+                              <div><p className="text-[8px] font-black uppercase text-slate-400">Historical Age</p><p className="font-bold text-lg">{selectedAttraction.historicalEra}</p></div>
                           </div>
                       </div>
                   </div>
@@ -176,15 +356,35 @@ export const Tourism: React.FC = () => {
                                    <span className="text-slate-400 font-black uppercase text-xs tracking-widest">/ Per User</span>
                                </div>
                           </div>
+
+                          <div className="space-y-4">
+                             <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                 <span>Neural Integration Score</span>
+                                 <span className="text-emerald-600">{selectedAttraction.neuralFormFactor}%</span>
+                             </div>
+                             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                 <div className="h-full bg-emerald-500 shadow-[0_0_10px_#10b981]" style={{ width: `${selectedAttraction.neuralFormFactor}%` }}></div>
+                             </div>
+                          </div>
                       </div>
-                      <div className="mt-16">
+                      <div className="mt-16 space-y-6">
                           <button 
                             className="w-full py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-700 shadow-2xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-6 group"
                             aria-label={`Generate access ticket for ${selectedAttraction.name} at ₦ ${selectedAttraction.ticketPrice.toLocaleString()}`}
                           >
                               <Ticket className="w-9 h-9 group-hover:rotate-12 transition-transform" /> Generate Access Ticket
                           </button>
-                          <p className="text-center text-[9px] text-slate-400 font-black uppercase tracking-[0.4em] mt-8">Secured by ISEYAA ESCROW Node</p>
+                          <div className="flex gap-4">
+                              <button className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-3">
+                                  <Smartphone className="w-4 h-4" /> Save to Wallet
+                              </button>
+                              <button className="flex-1 py-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all flex items-center justify-center gap-3">
+                                  <Glasses className="w-4 h-4" /> Launch VR Preview
+                              </button>
+                          </div>
+                          <p className="text-center text-[9px] text-slate-400 font-black uppercase tracking-[0.4em] mt-8 flex items-center justify-center gap-2">
+                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Secured by ISEYAA Neural Identity Hub
+                          </p>
                       </div>
                   </div>
               </div>
@@ -228,7 +428,12 @@ export const Tourism: React.FC = () => {
                               <source src={activeArchiveStory.videoUrl} type="video/mp4" />
                           </video>
                       ) : (
-                          <img src={activeArchiveStory.image} className="w-full h-full object-cover opacity-40 grayscale group-hover:grayscale-0 transition-all duration-[3s]" alt={`Visual representation for ${activeArchiveStory.title}`} />
+                          <OptimizedImage 
+                            src={activeArchiveStory.image} 
+                            alt={activeArchiveStory.title}
+                            className="w-full h-full opacity-40 grayscale group-hover:grayscale-0"
+                            imgClassName="transition-all duration-[3s]"
+                          />
                       )}
                       
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
@@ -324,9 +529,30 @@ export const Tourism: React.FC = () => {
         
         {activeTab === 'explore' && (
             <div className="space-y-24 animate-in fade-in duration-700">
+                
+                {/* NEURAL DISCOVERY BAR */}
+                <div className="bg-slate-900 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-3xl border-[8px] border-white group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                        <div className="space-y-4 text-center md:text-left">
+                            <span className="text-emerald-500 font-black uppercase tracking-[0.5em] text-[10px] flex items-center justify-center md:justify-start gap-3">
+                                <Sparkles className="w-4 h-4" /> AI Personalized Recommendations
+                            </span>
+                            <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic leading-none">Find Your Next Story.</h2>
+                            <p className="text-slate-400 text-lg font-light italic max-w-xl">Let our Neural Agent scan the 40 state-verified wonder sites to match your unique cultural blueprint.</p>
+                        </div>
+                        <button 
+                            onClick={handleNeuralScan}
+                            className="px-12 py-7 bg-emerald-600 text-white rounded-full font-black text-xl hover:bg-emerald-500 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] active:scale-95 flex items-center gap-4 group/btn"
+                        >
+                            <Fingerprint className="w-7 h-7 group-hover/btn:scale-110" /> ENGAGE NEURAL SCAN
+                        </button>
+                    </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row justify-between items-end gap-10">
                     <div>
-                        <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-[0.9]">Top Tier<br/>Experiences.</h2>
+                        <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-[0.9]">Wonder<br/>Signals.</h2>
                         <p className="text-xl text-slate-400 mt-6 font-light max-w-xl">Curated state-standard destinations in Ogun. Minimum ticket entry ₦5,000.</p>
                     </div>
                     <div className="bg-emerald-50 px-8 py-4 rounded-full border border-emerald-100 flex items-center gap-6">
@@ -347,22 +573,40 @@ export const Tourism: React.FC = () => {
                           aria-label={`View full details for ${attr.name}`}
                         >
                             <div className="aspect-[4/5] rounded-[3.5rem] overflow-hidden relative mb-10 shadow-2xl">
-                                <img src={attr.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[6s]" alt={`Captivating scenery of ${attr.name}`} />
-                                <div className="absolute top-6 left-6 bg-white/95 backdrop-blur px-5 py-2.5 rounded-full text-[10px] font-black text-emerald-800 border border-white shadow-2xl uppercase tracking-widest">Verified Selection</div>
-                                {attr.hasVR && <div className="absolute top-6 right-6 bg-purple-600 text-white p-4 rounded-[1.5rem] shadow-2xl animate-pulse"><Glasses className="w-6 h-6" /></div>}
+                                <OptimizedImage 
+                                    src={attr.image} 
+                                    alt={attr.name}
+                                    className="w-full h-full"
+                                    imgClassName="group-hover:scale-110 duration-[6s]"
+                                />
+                                <div className="absolute top-6 left-6 bg-white/95 backdrop-blur px-5 py-2.5 rounded-full text-[9px] font-black text-emerald-800 border border-white shadow-2xl uppercase tracking-widest">Verified Selection</div>
+                                <div className="absolute top-6 right-6 flex flex-col gap-2">
+                                    {attr.hasVR && <div className="bg-purple-600 text-white p-3 rounded-2xl shadow-2xl animate-pulse"><Glasses className="w-5 h-5" /></div>}
+                                    <div className="bg-white/90 backdrop-blur p-3 rounded-2xl shadow-2xl flex flex-col items-center">
+                                        <Thermometer className="w-4 h-4 text-orange-500" />
+                                        <span className="text-[8px] font-black text-slate-900 mt-1">{attr.temperature}°</span>
+                                    </div>
+                                </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-12">
-                                    <span className="text-white font-black text-xl flex items-center gap-3">Quick View <ArrowRight className="w-6 h-6" /></span>
+                                    <span className="text-white font-black text-xl flex items-center gap-3">Commence Discovery <ArrowRight className="w-6 h-6" /></span>
                                 </div>
                             </div>
                             <div className="flex-1 space-y-4 px-2">
-                                <h3 className="text-3xl font-black text-slate-900 tracking-tighter leading-[0.9] group-hover:text-emerald-600 transition-colors uppercase italic">{attr.name}</h3>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] flex items-center gap-2 border-b border-slate-50 pb-6"><MapPin className="w-3.5 h-3.5 text-emerald-500" /> {attr.location}</p>
+                                <div className="flex justify-between items-start">
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter leading-[0.9] group-hover:text-emerald-600 transition-colors uppercase italic">{attr.name}</h3>
+                                    <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${attr.status === 'Operational' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                        {attr.status}
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] flex items-center gap-2 border-b border-slate-50 pb-6 italic">
+                                    <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {attr.location} • {attr.distance}
+                                </p>
                                 <div className="pt-4 flex justify-between items-center">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Standard Ticket</span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Pass From</span>
                                         <span className="text-3xl font-black text-slate-900 tracking-tighter italic">₦{attr.ticketPrice.toLocaleString()}</span>
                                     </div>
-                                    <div className="p-5 bg-emerald-50 text-emerald-600 rounded-[2rem] group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xl"><Ticket className="w-7 h-7" /></div>
+                                    <div className="p-5 bg-emerald-50 text-emerald-600 rounded-[2rem] group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xl active:scale-90"><Ticket className="w-7 h-7" /></div>
                                 </div>
                             </div>
                         </div>
@@ -374,9 +618,21 @@ export const Tourism: React.FC = () => {
                     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500 rounded-full blur-[150px] opacity-20 -translate-y-40 translate-x-40" />
                     <div className="relative z-10 grid lg:grid-cols-2 gap-24 items-center">
                         <div className="space-y-12">
-                             <span className="text-emerald-500 font-black uppercase tracking-[0.6em] text-[10px]">ULTIMATE GATEWAY PASS</span>
-                             <h2 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.8] uppercase italic">All 40 Wonder Sites.</h2>
+                             <span className="text-emerald-500 font-black uppercase tracking-[0.6em] text-[10px] flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center"><Globe className="w-5 h-5" /></div>
+                                ULTIMATE GATEWAY PASS
+                             </span>
+                             <h2 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.8] uppercase italic">The 40 Wonder Sites.</h2>
                              <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Access every historic shrine, museum, and safari park in Ogun State with one intelligent digital pass. Verified by ISEYAA Identity.</p>
+                             <div className="space-y-6">
+                                <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest">
+                                    <span className="text-emerald-500">Node Completion Progress</span>
+                                    <span>12/40 Nodes Sync</span>
+                                </div>
+                                <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-emerald-500 shadow-[0_0_20px_#10b981]" style={{ width: '30%' }}></div>
+                                </div>
+                             </div>
                              <button 
                                 className="px-16 py-8 bg-emerald-600 text-white rounded-full font-black text-3xl hover:bg-emerald-500 transition-all shadow-[0_30px_60px_-10px_rgba(16,185,129,0.5)] active:scale-95 flex items-center gap-8 group"
                                 aria-label="Purchase Ultimate Gateway Pass for ₦ 50,000"
@@ -385,10 +641,16 @@ export const Tourism: React.FC = () => {
                              </button>
                         </div>
                         <div className="hidden lg:grid grid-cols-2 gap-10">
-                            {[1,2,3,4].map(i => (
+                            {[
+                                { l: 'Bio-Log 01', v: 'Verified', i: Fingerprint },
+                                { l: 'GPS Core', v: 'Optimal', i: Target },
+                                { l: 'Ledger Node', v: 'Synced', i: Smartphone },
+                                { l: 'Auth Signal', v: 'Ready', i: QrCode }
+                            ].map((p, i) => (
                                 <div key={i} className="aspect-square bg-white/[0.03] rounded-[4rem] border border-white/10 p-12 flex flex-col justify-center items-center text-center group hover:bg-white/5 transition-all">
-                                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform" aria-hidden="true"><CheckCircle2 className="w-10 h-10" /></div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Verified Protocol Node 0{i}</p>
+                                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform" aria-hidden="true"><p.i className="w-10 h-10" /></div>
+                                    <p className="text-xl font-black italic mb-2 tracking-tighter uppercase">{p.v}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{p.l}</p>
                                 </div>
                             ))}
                         </div>
@@ -415,7 +677,12 @@ export const Tourism: React.FC = () => {
                           aria-label={`Listen and explore ${story.title} narrated by ${story.narrator}`}
                         >
                             <div className="h-3/5 relative overflow-hidden">
-                                <img src={story.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[8s]" alt={`Atmospheric image representing ${story.title}`} />
+                                <OptimizedImage 
+                                    src={story.image} 
+                                    alt={story.title}
+                                    className="w-full h-full"
+                                    imgClassName="group-hover:scale-110 duration-[8s]"
+                                />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                                 <div className="absolute bottom-10 left-10 flex items-center gap-6">
                                     <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-3xl group-hover:scale-110 transition-all border-[8px] border-white/20" aria-hidden="true"><Play className="w-9 h-9 fill-current ml-2" /></div>
@@ -470,7 +737,11 @@ export const Tourism: React.FC = () => {
                         {attractions.map(attr => (
                             <div key={attr.id} className="py-16 flex flex-col md:flex-row justify-between items-center gap-12 group" role="listitem">
                                 <div className="flex items-center gap-12">
-                                    <div className="w-48 h-48 rounded-[3rem] overflow-hidden border-[10px] border-slate-50 shadow-2xl group-hover:border-emerald-50 transition-colors"><img src={attr.image} className="w-full h-full object-cover" alt={`Preview of ${attr.name}`} /></div>
+                                    <OptimizedImage 
+                                        src={attr.image} 
+                                        alt={attr.name} 
+                                        className="w-48 h-48 rounded-[3rem] border-[10px] border-slate-50 shadow-2xl group-hover:border-emerald-50"
+                                    />
                                     <div className="space-y-4">
                                         <h4 className="text-4xl font-black text-slate-900 tracking-tighter italic uppercase">{attr.name}</h4>
                                         <div className="flex flex-wrap items-center gap-8">
@@ -591,6 +862,11 @@ export const Tourism: React.FC = () => {
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        @keyframes scan {
+          0% { top: 0; opacity: 1; }
+          50% { top: 100%; opacity: 0.5; }
+          100% { top: 0; opacity: 1; }
         }
       `}} />
     </div>

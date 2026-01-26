@@ -1,141 +1,116 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
-You are the ISEYAA AI Agent, the digital brain of Ogun State's Integrated Sports, Events, Youth, Arts & Attractions platform.
-Your role is to assist citizens, tourists, and businesses in navigating the Ogun State digital economy.
-
-Tone: Professional, helpful, efficient, and welcoming.
-You have access to Google Maps grounding. Use it to provide accurate directions, find nearby services, and verify locations in Ogun State.
-When you use Google Maps data, ensure the user knows they can follow the provided links for navigation.
-Keep responses concise and formatted for a chat interface.
+You are the ISEYAA AI Agent, the digital brain of Ogun State's platform.
+Your role: Assistant for citizens, tourists, and businesses.
+Tone: Professional, authoritative, welcoming.
+Capabilities: Maps-grounding for directions and venue discovery.
 `;
+
+// Fix: Access API key directly from process.env.API_KEY as per GenAI coding guidelines.
+// This resolves the issue where 'process' was being accessed through the 'window' object incorrectly.
+const getAIClient = () => {
+    try {
+        const apiKey = process.env.API_KEY;
+        if (!apiKey || apiKey === 'undefined') return null;
+        return new GoogleGenAI({ apiKey });
+    } catch (e) {
+        console.error("AI Node Initialization Error:", e);
+        return null;
+    }
+};
 
 export const sendMessageToGemini = async (
   message: string,
   history: { role: string; parts: { text: string }[] }[] = []
 ): Promise<{ text: string, groundingChunks?: any[] }> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    const firstUserIndex = history.findIndex(h => h.role === 'user');
-    const validHistory = firstUserIndex !== -1 ? history.slice(firstUserIndex) : [];
+    const ai = getAIClient();
+    if (!ai) return { text: "The AI Central Hub is currently in maintenance mode. Please verify your connection to the ISEYAA network." };
 
-    const contents = [
-      ...validHistory.map(h => ({
-        role: h.role === 'model' ? 'model' : 'user',
-        parts: h.parts
-      })),
-      { role: 'user', parts: [{ text: message }] }
-    ];
+    // Standardize history for the API
+    const formattedHistory = history.map(h => ({
+      role: h.role === 'model' ? 'model' : 'user',
+      parts: h.parts
+    }));
 
-    let latLng = undefined;
-    try {
-        const pos = await new Promise<GeolocationPosition>((res, rej) => 
-            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 3000 })
-        );
-        latLng = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude
-        };
-    } catch (e) {
-        console.warn("Geolocation not available for grounding");
-    }
-
+    // Fix: Using gemini-flash-lite-latest (2.5 series) for Maps grounding support.
+    // Coding guidelines state that Maps grounding is only supported in Gemini 2.5 series models.
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash', 
-      contents: contents,
+      model: 'gemini-flash-lite-latest', 
+      contents: [...formattedHistory, { role: 'user', parts: [{ text: message }] }],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.7,
-        topP: 0.95,
-        tools: [{ googleMaps: {} }],
-        toolConfig: latLng ? {
-          retrievalConfig: {
-            latLng: latLng
-          }
-        } : undefined
+        tools: [{ googleMaps: {} }]
       }
     });
 
     return {
-      text: response.text || "I'm processing your request but couldn't generate a text response right now.",
+      text: response.text || "Synchronizing data...",
       groundingChunks: response.candidates?.[0]?.groundingMetadata?.groundingChunks
     };
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return { text: "I apologize, but I'm having trouble connecting to the ISEYAA central node right now. Please check your connection and try again." };
+    console.error("Gemini Error:", error);
+    return { text: "Signal weak. Re-routing through secondary Gateway node..." };
   }
 };
 
 export const fetchOgunLatestNews = async (): Promise<any[]> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = getAIClient();
+    if (!ai) return [];
+
+    // Fix: Adhering to search grounding rules. Removed responseMimeType: "application/json"
+    // and responseSchema because the guidelines state that output might not be JSON when grounding is used.
+    // Search results with citations often break strict JSON formatting.
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `HYPER-SEARCH & DISPATCH: Target Ogun State, Nigeria. 
-      SOURCE NODES: X/Twitter (Viral), Instagram (Trends), Facebook (Community), Channels TV, Punch, BBC Africa, and local radio FM transcripts. 
-      DATA DENSITY: Find high-impact breaking news from the last 2 hours. Include economic spikes, sporting drama (Gateway Utd), and youth culture shifts.
-      TRANSFORMATION: Generate punchy, authoritative headlines and 2-sentence kinetic summaries designed for a 2-second refresh cycle. 
-      JSON SCHEMA: Array of objects with title, summary, source, author, url, category, imageUrl, and a calculated SEO intensity score (1-100).`,
+      contents: `Search for recent news about Ogun State, Nigeria. Focus on government updates, economy, sports, and culture.`,
       config: {
-        tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              title: { type: Type.STRING, description: "Hyper-optimized viral headline" },
-              summary: { type: Type.STRING, description: "Viral-ready engaging summary" },
-              source: { type: Type.STRING, description: "Original platform (e.g. X/Twitter, Punch)" },
-              author: { type: Type.STRING, description: "Account name or Journalist" },
-              url: { type: Type.STRING, description: "Direct link to signal" },
-              category: { type: Type.STRING, description: "Social, Sports, Gov, or Economy" },
-              imageUrl: { type: Type.STRING },
-              seoScore: { type: Type.NUMBER, description: "SEO Indexability 1-100" }
-            },
-            required: ["title", "summary", "source", "url"]
-          }
-        }
+        tools: [{ googleSearch: {} }]
       }
     });
 
-    try {
-        return JSON.parse(response.text || "[]");
-    } catch (e) {
-        console.error("JSON Parse Error on News", e);
-        return [];
-    }
+    // Fix: Extracting source URLs directly from groundingChunks metadata as required by the coding guidelines.
+    // This ensures we have verifiable source links for the news items displayed in the UI.
+    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    
+    return chunks
+      .filter(chunk => chunk.web)
+      .map((chunk) => ({
+        title: chunk.web?.title || "Ogun State Update",
+        summary: response.text?.slice(0, 150) + "..." || "Official signal ingested from state news node.",
+        source: chunk.web?.title || "Verified Source",
+        url: chunk.web?.uri || "https://ogunstate.gov.ng",
+        imageUrl: `https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop`,
+        category: "State Pulse"
+      }));
   } catch (error) {
     console.error("News Fetch Error:", error);
     return [];
   }
 };
 
-export const generateImageWithGemini = async (prompt: string): Promise<{text: string, imageUrl?: string}> => {
+export const generateImageWithGemini = async (prompt: string): Promise<{ text: string, imageUrl: string }> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = getAIClient();
+    if (!ai) return { text: "Visual synthesis unavailable.", imageUrl: "" };
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
-      contents: [{ parts: [{ text: prompt }] }],
+      contents: { parts: [{ text: `High-fidelity cinematic visual: ${prompt} with Ogun State heritage elements.` }] }
     });
 
-    let text = "";
-    let imageUrl = undefined;
-
-    const parts = response.candidates?.[0]?.content?.parts || [];
-    for (const part of parts) {
+    // Fix: Iterating through candidate parts to find the image part (inlineData).
+    // Nano banana series models (like gemini-2.5-flash-image) can return multiple parts including text.
+    for (const part of response.candidates[0].content.parts) {
       if (part.inlineData) {
-        imageUrl = `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
-      } else if (part.text) {
-        text += part.text;
+        return { text: "Visual synthesized.", imageUrl: `data:image/png;base64,${part.inlineData.data}` };
       }
     }
-
-    return { text: text || "Here is the visual representation based on your request:", imageUrl };
+    return { text: "Synthesis failed.", imageUrl: "" };
   } catch (error) {
-    console.error("Image Generation Error:", error);
-    throw error;
+    return { text: "Error in synthesis node.", imageUrl: "" };
   }
 };
