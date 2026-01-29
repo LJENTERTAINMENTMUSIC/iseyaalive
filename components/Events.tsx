@@ -109,7 +109,7 @@ const OptimizedImage: React.FC<{ src: string; alt: string; className?: string }>
       {hasError ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-200 text-slate-400 p-4 text-center">
           <ImageOff className="w-10 h-10 mb-2 opacity-50" />
-          <span className="text-[9px] font-black uppercase tracking-widest">Media Node Offline</span>
+          <span className="text-[9px] font-black uppercase tracking-widest">Signal Node Offline</span>
         </div>
       ) : (
         <img
@@ -241,7 +241,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
                 </div>
                 <div className="flex gap-4 pt-4">
                     <button onClick={() => setViewState('list')} className="flex-1 py-6 border-2 border-slate-100 rounded-full font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50">Discard</button>
-                    <button className="flex-[2] py-6 bg-slate-900 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-black flex items-center justify-center gap-3 shadow-2xl active:scale-95">
+                    <button className="flex-[2] py-6 bg-slate-900 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-black flex items-center justify-center gap-3 shadow-2xl active:scale-[0.98]">
                         <Share2 className="w-4 h-4" /> Share Protocol
                     </button>
                 </div>
@@ -535,7 +535,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
                               <p className="text-slate-400 text-xl font-light italic mt-3 max-w-xl">Register your festival, summit, or game with the central ISEYAA event ledger for automated SEO scaling.</p>
                           </div>
                       </div>
-                      <button onClick={() => setIsCreating(true)} className="bg-slate-950 text-white px-16 py-8 rounded-full font-black text-2xl hover:bg-emerald-600 shadow-[0_30px_60px_-10px_rgba(0,0,0,0.4)] transition-all flex items-center gap-6 active:scale-95 group">
+                      <button onClick={() => setIsCreating(true)} className="bg-slate-950 text-white px-16 py-8 rounded-full font-black text-2xl hover:bg-emerald-600 shadow-[0_30px_60px_-10px_rgba(0,0,0,0.4)] transition-all flex items-center gap-6 active:scale-[0.98] group">
                           <Plus className="w-10 h-10 group-hover:rotate-180 transition-transform" /> NEW SIGNAL
                       </button>
                   </div>
