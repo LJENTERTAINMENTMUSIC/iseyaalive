@@ -15,7 +15,6 @@
         } 
       };
       
-      // Global Error Reporting for Production Debugging
       window.onerror = function(msg, url, lineNo, columnNo, error) {
         console.error('ISEYAA System Error: ', msg, url, lineNo, columnNo, error);
         return false;
@@ -88,7 +87,6 @@
   </head>
   <body class="overflow-x-hidden">
     <div id="root">
-        <!-- Production Loading State -->
         <div class="flex items-center justify-center h-screen bg-[#FDFBF7]">
             <div class="flex flex-col items-center gap-6">
                 <div class="relative w-20 h-20">
@@ -100,13 +98,13 @@
                 </div>
                 <div class="text-center space-y-2">
                     <p class="text-[11px] font-black uppercase tracking-[0.6em] text-emerald-800 animate-pulse">IṢẸ́YÁÁ PROTOCOL V4.3</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Initialising Production Nodes...</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Synchronizing Production Nodes...</p>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Babel loader for TSX files directly in browser -->
+    <!-- Explicitly typed script for Babel Standalone -->
     <script type="text/babel" data-type="module" src="./index.tsx"></script>
   </body>
 </html>

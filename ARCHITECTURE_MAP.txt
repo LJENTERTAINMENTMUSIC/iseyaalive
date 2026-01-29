@@ -1,66 +1,56 @@
 ================================================================================
 IṢẸ́YÁÁ DIGITAL OS | FULL SYSTEM ARCHITECTURE & PROCESS MAP
 ================================================================================
-Version: 4.3.0 (Production Live)
+Version: 4.3.5 (Production Final)
 Security Level: PUBLIC / REDACTED
-Status: Optimized for iseyaa.com
+Status: Extension-Aware ESM for iseyaa.com
 
 1. CORE PHILOSOPHY & RUNTIME MECHANICS
 --------------------------------------------------------------------------------
 IṢẸ́YÁÁ (Integrated Sports, Events, Youth, Arts & Attractions) is a government-
 owned "Super-App" designed as a unified economic engine for Ogun State.
 
-RUNTIME ARCHITECTURE: Zero-Build Browser-Native ESM
-- Core Engine: React 19 (Transient state with persistent ledger simulation).
+RUNTIME ARCHITECTURE: Extension-Aware Zero-Build ESM
+- Core Engine: React 19.
 - Transpilation: Babel Standalone (v7) processing .tsx files at runtime.
 - Package Resolution: Import Maps via esm.sh CDN.
-- Secret Management: Credentials restricted to CI/CD environment variables.
-- Domain Node: iseyaa.com anchored via GitHub Pages infrastructure.
+- Module Strategy: Explicit .tsx/.ts extensions in all relative imports to 
+  ensure browser-native ESM compatibility on GitHub Pages infrastructure.
+- Secret Management: Credentials restricted to environment variables.
+- Domain Node: iseyaa.com anchored via CNAME and GitHub Pages A-records.
 
 2. SYSTEM LOGIC FLOW
 --------------------------------------------------------------------------------
 Phase 1: Entry & Authorization
 - LandingPage.tsx acts as the primary gateway.
 - AuthModal.tsx provides Role-Based Access Control (RBAC). 
-- Access Tiering: Public User, Merchant Vendor, Govt Official, System Admin.
 
 Phase 2: Modular Command Hub
 - Dashboard.tsx: Central telemetry and KPI oversight.
-- App.tsx: Core state-driven router managing sector modules.
-- Layout.tsx: Dynamic sidebar filtering based on biometric role ID.
+- App.tsx: Core state-driven router managing sector modules with explicit ESM.
+- Layout.tsx: Dynamic sidebar filtering with biometric role ID anchoring.
 
 Phase 3: Sector Modules
 - Tourism: Neural Story Weaver (Veo 3.1) folklore synthesis.
 - Health: Encrypted Medical Vault and telemedicine links.
 - Wallet: Financial settlement core using Paystack integration.
-- Transport: Route synchronization via Google Maps grounding.
 
 3. AI PROTOCOL CONFIGURATION
 --------------------------------------------------------------------------------
-Assistant Logic (services/geminiService.ts):
+Assistant Logic:
 - Assistant Name: ISEYAA AI Agent
-- Capabilities: Search Grounding, Maps Grounding, Visual Asset Synthesis.
 - Model Mapping: 
   * 'gemini-flash-lite-latest' (Maps/Assist)
   * 'gemini-3-flash-preview' (Search/SEO)
   * 'gemini-2.5-flash-image' (Imaging)
   * 'veo-3.1-generate-preview' (4K Video)
 
-4. SECURITY & PUBLIC REPO SAFETY
+4. SECURITY & DEPLOYMENT SAFETY
 --------------------------------------------------------------------------------
-- API KEYS: Processed via `process.env.API_KEY`. No keys are hardcoded.
-- LOGIN CREDENTIALS: Redacted. Admin logic uses specific email patterns 
-  (e.g., [REDACTED]@iseyaa.gov.ng) for protocol elevation.
-- DATA PRIVACY: All medical and financial records are simulated "ledger 
-  objects" to ensure no real PII is transmitted in the demo/public node.
-
-5. INTENDED USE CASES
---------------------------------------------------------------------------------
-- CITIZEN: Secure payment of utilities and state levies.
-- MERCHANT: Listing authentic Ogun products on the global marketplace.
-- TOURIST: Booking verified accommodation and heritage access passes.
-- GOVERNMENT: Monitoring real-time revenue and compliance telemetry.
+- API KEYS: Processed via `process.env.API_KEY`. No hardcoding.
+- DOMAIN ROUTING: CNAME file points traffic to GitHub's static edge nodes.
+- EXTENSIONS: All internal imports MUST use .tsx/.ts for production stability.
 
 ================================================================================
-END OF ARCHITECTURE MAP | VERSION 4.3.0
+END OF ARCHITECTURE MAP | VERSION 4.3.5
 ================================================================================
