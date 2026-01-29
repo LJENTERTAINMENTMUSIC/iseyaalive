@@ -1,105 +1,66 @@
 ================================================================================
 IṢẸ́YÁÁ DIGITAL OS | FULL SYSTEM ARCHITECTURE & PROCESS MAP
 ================================================================================
-Version: 4.2.5 (Production Candidate)
+Version: 4.3.0 (Production Live)
 Security Level: PUBLIC / REDACTED
-Last Sync: [CURRENT_SYNC_TIMESTAMP]
+Status: Optimized for iseyaa.com
 
 1. CORE PHILOSOPHY & RUNTIME MECHANICS
 --------------------------------------------------------------------------------
 IṢẸ́YÁÁ (Integrated Sports, Events, Youth, Arts & Attractions) is a government-
 owned "Super-App" designed as a unified economic engine for Ogun State.
 
-ARCHITECTURE PATTERN: Zero-Build Browser-Native ESM (Edge Services)
-- Transpiler: Babel Standalone (v7) processing .tsx files in-browser.
-- Resolution: Import Maps via esm.sh (Zero local node_modules dependency).
-- State Engine: React 19 (Transient state with persistent ledger simulation).
-- Polyfill: 'process.env' is injected via a root script in index.html to allow
-  standard SDK compatibility while protecting secrets via CI/CD injection.
+RUNTIME ARCHITECTURE: Zero-Build Browser-Native ESM
+- Core Engine: React 19 (Transient state with persistent ledger simulation).
+- Transpilation: Babel Standalone (v7) processing .tsx files at runtime.
+- Package Resolution: Import Maps via esm.sh CDN.
+- Secret Management: Credentials restricted to CI/CD environment variables.
+- Domain Node: iseyaa.com anchored via GitHub Pages infrastructure.
 
-2. LOGIC FLOW: THE USER JOURNEY
+2. SYSTEM LOGIC FLOW
 --------------------------------------------------------------------------------
-Phase A: Gateway Entry (LandingPage.tsx)
-- Entry point for all traffic. Displays high-fidelity "Live Pulse" and
-  "Luxury Stay" marquees using CSS-accelerated infinite transforms.
-- Logic: Access is gated by a "Choose Protocol" modal.
+Phase 1: Entry & Authorization
+- LandingPage.tsx acts as the primary gateway.
+- AuthModal.tsx provides Role-Based Access Control (RBAC). 
+- Access Tiering: Public User, Merchant Vendor, Govt Official, System Admin.
 
-Phase B: Neural Identity Auth (AuthModal.tsx)
-- Logic: Role-Based Access Control (RBAC). 
-- Roles: User (Public), Vendor (Merchant), Government (Agency), Admin (System).
-- Security: Real-world login simulation via Google Protocol. 
-- [REDACTED]: Admin access requires email strings ending in verified state 
-  domain aliases. Unauthorized attempts trigger a "Pending Approval" state.
+Phase 2: Modular Command Hub
+- Dashboard.tsx: Central telemetry and KPI oversight.
+- App.tsx: Core state-driven router managing sector modules.
+- Layout.tsx: Dynamic sidebar filtering based on biometric role ID.
 
-Phase C: Command Hub (Layout.tsx / Dashboard.tsx)
-- Modular Rendering: App.tsx handles the central view-state.
-- Logic: The sidebar dynamically filters modules based on the active Role ID.
+Phase 3: Sector Modules
+- Tourism: Neural Story Weaver (Veo 3.1) folklore synthesis.
+- Health: Encrypted Medical Vault and telemedicine links.
+- Wallet: Financial settlement core using Paystack integration.
+- Transport: Route synchronization via Google Maps grounding.
 
-3. MODULE FUNCTIONALITY & MECHANICS
+3. AI PROTOCOL CONFIGURATION
 --------------------------------------------------------------------------------
-[I] AI COMMAND AGENT (AIChat.tsx)
-- Logic: Gemini-powered multi-modal assistant.
-- Mechanics: 
-  * Map Grounding: Leverages 'gemini-flash-lite-latest' for venue discovery.
-  * Image Synthesis: Uses 'gemini-2.5-flash-image' for visual asset creation.
-  * Search Grounding: Pulls real-time Ogun news with citations via 'gemini-3-flash'.
+Assistant Logic (services/geminiService.ts):
+- Assistant Name: ISEYAA AI Agent
+- Capabilities: Search Grounding, Maps Grounding, Visual Asset Synthesis.
+- Model Mapping: 
+  * 'gemini-flash-lite-latest' (Maps/Assist)
+  * 'gemini-3-flash-preview' (Search/SEO)
+  * 'gemini-2.5-flash-image' (Imaging)
+  * 'veo-3.1-generate-preview' (4K Video)
 
-[II] TOURISM & CULTURE (Tourism.tsx)
-- Mechanics: 
-  * "Story Weaver": Connects to Veo 3.1 engine to deep-dream 4K animations.
-  * "Neural Scan": Personalized recommendation algorithm for heritage sites.
-  * "Access Ticket": Generates QR-anchored ledger entries for site entry.
-
-[III] MOBILITY & TRANSPORT (Transport.tsx)
-- Logic: State-managed ride-hailing and logistics hub.
-- Passenger Mode: Route selection -> Fleet Sync -> Driver Intercept.
-- Driver Mode: Portal Engagement -> Demand Map -> Mission Acceptance.
-
-[IV] MULTI-MARKETPLACE (Marketplace.tsx)
-- Function: Escrow-backed e-commerce for state-certified vendors.
-- Mechanics: Vendor Dashboard (Analytics) vs. Buyer Discovery (SEO Grid).
-- Settlement: IṢẸ́YÁÁ Wallet integration for zero-fee intra-platform trade.
-
-[V] NEURAL HEALTH (Health.tsx)
-- Mechanics: Encrypted "Medical Vault" for PDF record storage.
-- Telemedicine: Authenticated video link protocol for verified doctors.
-
-4. PROMPT ENGINEERING & AI PROTOCOLS
+4. SECURITY & PUBLIC REPO SAFETY
 --------------------------------------------------------------------------------
-The system utilizes specific "Prompt Templates" to ensure high-fidelity outputs:
+- API KEYS: Processed via `process.env.API_KEY`. No keys are hardcoded.
+- LOGIN CREDENTIALS: Redacted. Admin logic uses specific email patterns 
+  (e.g., [REDACTED]@iseyaa.gov.ng) for protocol elevation.
+- DATA PRIVACY: All medical and financial records are simulated "ledger 
+  objects" to ensure no real PII is transmitted in the demo/public node.
 
-System Instruction (Global):
-"You are the ISEYAA AI Agent... professional, authoritative, welcoming... 
-Capabilities: Maps-grounding for directions and venue discovery."
-
-Visual Synthesis Protocol:
-"4K Illustrator style animation storytelling: [USER_INPUT]. High fidelity, 
-dynamic action sequences, rich hand-painted artistic textures, 
-epic scale, Ogun State heritage focus."
-
-SEO Scouting Protocol (Blog):
-"Search for recent news about Ogun State, Nigeria. Focus on government 
-updates, economy, sports, and culture. Extract source URLs from chunks."
-
-5. SECURITY & SECRET MANAGEMENT
+5. INTENDED USE CASES
 --------------------------------------------------------------------------------
-- API KEYS: Handled exclusively via `process.env.API_KEY`. 
-  [SECURITY ALERT]: Never hardcode keys. Inject via GitHub Secrets/CI-CD.
-- PAYMENTS: Paystack Public Key anchored to `pk_live_...` for NGN settlement.
-- DATA: All medical and financial records are simulated as "Ledger Entries" 
-  to prevent PII (Personally Identifiable Information) leaks on public repo.
-
-6. PRIMARY USE CASES (PERSONAS)
---------------------------------------------------------------------------------
-1. LOCAL ARTISAN: Uses 'Marketplace' to upload Adire designs and 
-   manages 'Earnings' via the 'Wallet' module.
-2. FOREIGN TOURIST: Uses 'Tourism' to watch AI-generated history of Olumo 
-   Rock and books 'Accommodation' using the verified guest protocol.
-3. STATE OFFICIAL: Accesses 'Government' dashboard for real-time compliance 
-   monitoring and revenue tracking across all sectors.
-4. COMMUTER: Accesses 'Transport' for real-time bus/taxi tracking anchored 
-   to the state mobility grid.
+- CITIZEN: Secure payment of utilities and state levies.
+- MERCHANT: Listing authentic Ogun products on the global marketplace.
+- TOURIST: Booking verified accommodation and heritage access passes.
+- GOVERNMENT: Monitoring real-time revenue and compliance telemetry.
 
 ================================================================================
-END OF ARCHITECTURE MAP | VERSION 4.2.5
+END OF ARCHITECTURE MAP | VERSION 4.3.0
 ================================================================================
