@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Calendar, MapPin, Music, Ticket, Users, Search, Filter, Heart, 
@@ -457,7 +456,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20">
                       {eventsList.filter(e => activeTab === 'All' || e.category === activeTab).map((event, idx) => (
-                          <div key={event.id} onClick={() => handleEventClick(event)} className="group cursor-pointer bg-white rounded-[4rem] border-2 border-slate-50 p-8 shadow-sm hover:shadow-[0_60px_120px_-30px_rgba(0,0,0,0.1)] transition-all flex flex-col h-full hover:-translate-y-4 relative animate-in slide-in-from-bottom-10" style={{ animationDelay: `${idx * 100}ms` }}>
+                          <div key={event.id} onClick={() => handleEventClick(event)} className="group cursor-pointer bg-white rounded-[4rem] border-2 border-slate-50 p-8 shadow-sm hover:shadow-[0_60px_120px_-30px_rgba(0,0,0,0.15)] transition-all duration-500 ease-out flex flex-col h-full hover:-translate-y-3 hover:scale-[1.02] relative animate-in slide-in-from-bottom-10" style={{ animationDelay: `${idx * 100}ms` }}>
                               
                               {isSuperAdmin && (
                                   <button 

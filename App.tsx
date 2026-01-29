@@ -1,26 +1,26 @@
 
 import React, { useState } from 'react';
-import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
-import { LandingPage } from './components/LandingPage';
-import { Marketplace } from './components/Marketplace';
-import { AIChat } from './components/AIChat';
-import { Transport } from './components/Transport';
-import { Accommodation } from './components/Accommodation';
-import { Events } from './components/Events';
-import { Security } from './components/Security';
-import { Sports } from './components/Sports';
-import { Health } from './components/Health';
-import { Utilities } from './components/Utilities';
-import { Wallet } from './components/Wallet';
-import { Automation } from './components/Automation';
-import { Tourism } from './components/Tourism';
-import { Government } from './components/Government';
-import { Blog } from './components/Blog';
-import { Approvals } from './components/Approvals';
-import { AuthModal } from './components/AuthModal';
-import { CartOverlay } from './components/CartOverlay';
-import { AppView, User, UserRole, CartItem } from './types';
+import { Layout } from './components/Layout.tsx';
+import { Dashboard } from './components/Dashboard.tsx';
+import { LandingPage } from './components/LandingPage.tsx';
+import { Marketplace } from './components/Marketplace.tsx';
+import { AIChat } from './components/AIChat.tsx';
+import { Transport } from './components/Transport.tsx';
+import { Accommodation } from './components/Accommodation.tsx';
+import { Events } from './components/Events.tsx';
+import { Security } from './components/Security.tsx';
+import { Sports } from './components/Sports.tsx';
+import { Health } from './components/Health.tsx';
+import { Utilities } from './components/Utilities.tsx';
+import { Wallet } from './components/Wallet.tsx';
+import { Automation } from './components/Automation.tsx';
+import { Tourism } from './components/Tourism.tsx';
+import { Government } from './components/Government.tsx';
+import { Blog } from './components/Blog.tsx';
+import { Approvals } from './components/Approvals.tsx';
+import { AuthModal } from './components/AuthModal.tsx';
+import { CartOverlay } from './components/CartOverlay.tsx';
+import { AppView, User, UserRole, CartItem } from './types.ts';
 import { Wrench, CheckCircle2 } from 'lucide-react';
 
 const PlaceholderView = ({ title, icon: Icon }: { title: string, icon: any }) => (

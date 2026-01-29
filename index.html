@@ -7,7 +7,7 @@
     <title>IṢẸ́YÁÁ | Ogun State Digital OS</title>
     <meta name="description" content="Integrated Sports, Events, Youth, Arts & Attractions. The official digital economic engine of Ogun State.">
     
-    <!-- process.env Polyfill - Prevents crash if API_KEY is missing -->
+    <!-- process.env Polyfill - Must be first -->
     <script>
       window.process = { 
         env: { 
@@ -100,6 +100,7 @@
             </div>
         </div>
     </div>
+    <!-- Note: Explicit module script for Babel -->
     <script type="text/babel" data-type="module" src="./index.tsx"></script>
   </body>
 </html>

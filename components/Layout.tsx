@@ -28,8 +28,8 @@ import {
   Settings,
   UserCheck
 } from 'lucide-react';
-import { AppView, NavItem, User, UserRole, CartItem } from '../types';
-import { Logo } from './Logo';
+import { AppView, NavItem, User, UserRole, CartItem } from '../types.ts';
+import { Logo } from './Logo.tsx';
 
 interface LayoutProps {
   currentView: AppView;

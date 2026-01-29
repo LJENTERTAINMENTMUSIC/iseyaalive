@@ -17,6 +17,8 @@ declare global {
   }
 }
 
+// NOTE: This is a Public Key for the IṢẸ́YÁÁ Integration. 
+// For production forks, replace this with an environment variable if necessary.
 const PAYSTACK_PUBLIC_KEY = 'pk_live_cf0e424b32ccc61055b3f1dbefe8093284828c68';
 
 export const PaystackModal: React.FC<PaystackModalProps> = ({ isOpen, onClose, onSuccess, amount, email, metadata }) => {
@@ -30,7 +32,6 @@ export const PaystackModal: React.FC<PaystackModalProps> = ({ isOpen, onClose, o
   }, [isOpen]);
 
   const handlePay = () => {
-    // 1. Ensure amount is valid for Paystack (minimum 1 NGN)
     if (amount <= 0) {
         setStep('error');
         setErrorMessage("Transaction amount must be greater than zero.");
@@ -39,14 +40,12 @@ export const PaystackModal: React.FC<PaystackModalProps> = ({ isOpen, onClose, o
     
     setStep('processing');
 
-    // 2. Check if Paystack script loaded
     if (!window.PaystackPop) {
         setStep('error');
         setErrorMessage("Paystack is still loading or could not be reached. Please check your internet connection.");
         return;
     }
 
-    // 3. Robust Email Validation & Fallback
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const safeEmail = (email && emailRegex.test(email)) ? email : "payments@iseyaa.ogun.gov.ng";
 

@@ -38,9 +38,21 @@ import {
   ShieldCheck,
   Target,
   QrCode,
-  Smartphone
+  Smartphone,
+  Clapperboard,
+  History,
+  AlertTriangle,
+  ExternalLink,
+  Cpu,
+  Download,
+  FileDown,
+  Info,
+  Palette,
+  QrCode as QrIcon,
+  Verified
 } from 'lucide-react';
 import { Attraction } from '../types';
+import { GoogleGenAI } from "@google/genai";
 
 // Specialized sub-component for high-performance image delivery
 const OptimizedImage: React.FC<{ 
@@ -74,12 +86,6 @@ const OptimizedImage: React.FC<{
                 onError={() => setHasError(true)}
                 className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'} ${imgClassName}`}
             />
-            <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes shimmer {
-                    0% { background-position: -200% 0; }
-                    100% { background-position: 200% 0; }
-                }
-            `}} />
         </div>
     );
 };
@@ -127,40 +133,6 @@ const INITIAL_ATTRACTIONS: ExtendedAttraction[] = [
     distance: '5.1km from Center',
     historicalEra: 'Contemporary',
     neuralFormFactor: 85
-  },
-  {
-    id: '3',
-    name: 'Bilikisu Sungbo Shrine',
-    location: 'Oke-Eiri, Ijebu Ode',
-    image: 'https://images.unsplash.com/photo-1518182170546-0766dd6f7271?q=80&w=2070&auto=format&fit=crop',
-    rating: 4.5,
-    category: 'Heritage',
-    description: 'Ancient stone-paved shrine and reputed burial ground of the legendary Bilikisu Sungbo, linked to the Queen of Sheba.',
-    ticketPrice: 5000,
-    hasVR: true,
-    weather: 'Cloudy',
-    temperature: 26,
-    status: 'Limited Access',
-    distance: '18km from Center',
-    historicalEra: 'Ancient',
-    neuralFormFactor: 94
-  },
-  {
-    id: '4',
-    name: 'Omo Forest Safari',
-    location: 'Ijebu East',
-    image: 'https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?q=80&w=2070&auto=format&fit=crop',
-    rating: 4.8,
-    category: 'Nature',
-    description: 'One of the last remaining tropical rainforests in the South-West. Spot rare elephants and exotic birds.',
-    ticketPrice: 12000,
-    hasVR: false,
-    weather: 'Rainy',
-    temperature: 24,
-    status: 'Operational',
-    distance: '42km from Center',
-    historicalEra: 'Cenozoic Era',
-    neuralFormFactor: 91
   }
 ];
 
@@ -191,6 +163,17 @@ const HERITAGE_STORIES = [
   }
 ];
 
+const LOADING_MESSAGES = [
+  "Initializing Ancestral Signal...",
+  "Synthesizing 4K Illustrator Textures...",
+  "Rendering Egba Cultural Story Action...",
+  "Synchronizing Hand-Painted Heritage Nodes...",
+  "Optimizing Visual Storytelling Engine...",
+  "Verifying Historical Accuracy on State Ledger...",
+  "Engaging 3.1 Neural Weaver Protocol...",
+  "Finalizing Cinematic 4K Playback Core..."
+];
+
 export const Tourism: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'explore' | 'archive' | 'agent'>('explore');
   const [attractions, setAttractions] = useState<ExtendedAttraction[]>(INITIAL_ATTRACTIONS);
@@ -200,6 +183,137 @@ export const Tourism: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scannedResult, setScannedResult] = useState<ExtendedAttraction | null>(null);
+  const [showIseyaaInfo, setShowIseyaaInfo] = useState(false);
+
+  // Ticket States
+  const [isProcessingTicket, setIsProcessingTicket] = useState(false);
+  const [showTicketOverlay, setShowTicketOverlay] = useState(false);
+  const [ticketRef, setTicketRef] = useState('');
+
+  // Video Generation States
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
+  const [videoPrompt, setVideoPrompt] = useState('A cinematic 4K illustrator-style animation of Olumo Rock during the ancient wars, featuring epic action, traditional Egba warriors, and rich hand-painted textures.');
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    const checkKey = async () => {
+        const hasKey = await (window as any).aistudio?.hasSelectedApiKey();
+        setHasApiKey(!!hasKey);
+    };
+    checkKey();
+  }, []);
+
+  useEffect(() => {
+    let interval: any;
+    if (isGeneratingVideo) {
+      interval = setInterval(() => {
+        setLoadingMsgIdx(prev => (prev + 1) % LOADING_MESSAGES.length);
+      }, 3500);
+    }
+    return () => clearInterval(interval);
+  }, [isGeneratingVideo]);
+
+  const handleSelectApiKey = async () => {
+    await (window as any).aistudio?.openSelectKey();
+    setHasApiKey(true); 
+  };
+
+  const handleDownloadArchive = (story: any) => {
+    if (!story) return;
+    const header = "IṢẸ́YÁÁ DIGITAL HERITAGE ARCHIVE - OFFICIAL STATE TRANSCRIPT\n";
+    const subHeader = "==================================================\n";
+    const timestamp = `Signal Timestamp: ${new Date().toLocaleString()}\n`;
+    const auth = `Verification Node: IṢẸ́YÁÁ-V4-LEAD\n\n`;
+    const body = `ARCHIVE TITLE: ${story.title}\nNARRATOR: ${story.narrator}\nCATEGORY: ${story.category}\n\nCONTENT NARRATIVE:\n${story.content}`;
+    const footer = "\n\n==================================================\nThis document is a verified artifact of the Ogun State Digital OS.";
+    
+    try {
+        const fullContent = header + subHeader + timestamp + auth + body + footer;
+        const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `iseyaa-heritage-${story.title.toLowerCase().replace(/\s+/g, '-')}.txt`);
+        document.body.appendChild(link);
+        link.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    } catch (e) {
+        console.error("Archive Protocol Failure:", e);
+        alert("Digital download node interrupted. Re-routing through secondary buffer...");
+    }
+  };
+
+  const generateHeritageVideo = async () => {
+    if (!hasApiKey) {
+        handleSelectApiKey();
+        return;
+    }
+
+    setIsGeneratingVideo(true);
+    setGeneratedVideoUrl(null);
+    
+    try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        let operation = await ai.models.generateVideos({
+            model: 'veo-3.1-generate-preview',
+            prompt: `4K Illustrator style animation storytelling: ${videoPrompt}. High fidelity, dynamic action sequences, rich hand-painted artistic textures, epic scale, Ogun State heritage focus.`,
+            config: {
+                numberOfVideos: 1,
+                resolution: '1080p',
+                aspectRatio: '16:9'
+            }
+        });
+
+        while (!operation.done) {
+            await new Promise(resolve => setTimeout(resolve, 8000));
+            operation = await ai.operations.getVideosOperation({ operation });
+        }
+
+        const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+        if (downloadLink) {
+            const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setGeneratedVideoUrl(url);
+        }
+    } catch (error: any) {
+        console.error("Veo Error:", error);
+        const errMsg = error?.message || "";
+        if (errMsg.includes("permission") || errMsg.includes("403") || errMsg.includes("Requested entity was not found")) {
+            setHasApiKey(false);
+            alert("ISEYAA Permission Error: Accessing high-fidelity video models requires a PAID Google Cloud Project API Key. Please verify billing at ai.google.dev/gemini-api/docs/billing and re-select your key.");
+            await (window as any).aistudio?.openSelectKey();
+            setHasApiKey(true);
+        } else {
+            alert("Neural Weaver signal interrupted. Checking bandwidth and network node integrity...");
+        }
+    } finally {
+        setIsGeneratingVideo(false);
+    }
+  };
+
+  const handleGenerateTicket = () => {
+    if (!selectedAttraction) return;
+    setIsProcessingTicket(true);
+    setTimeout(() => {
+        setTicketRef(`ISEYAA-TKT-${Math.floor(100000 + Math.random() * 900000)}`);
+        setIsProcessingTicket(false);
+        setShowTicketOverlay(true);
+    }, 2000);
+  };
+
+  const openWeaverForStory = (story: any) => {
+    const prompt = `A cinematic 4K illustrator-style action storytelling animation for "${story.title}". Illustrate the action: ${story.summary}. Vivid hand-painted textures, realistic character motion, Ogun heritage motifs.`;
+    setVideoPrompt(prompt);
+    setIsVideoModalOpen(true);
+  };
 
   const [newAttr, setNewAttr] = useState<Partial<ExtendedAttraction>>({
     name: '', location: '', image: '', category: 'Experience', ticketPrice: 5000, description: ''
@@ -237,6 +351,234 @@ export const Tourism: React.FC = () => {
   return (
     <div className="bg-[#FDFBF7] min-h-screen">
       
+      {/* ACCESS TICKET OVERLAY */}
+      {showTicketOverlay && selectedAttraction && (
+          <div className="fixed inset-0 z-[650] bg-emerald-950/95 backdrop-blur-3xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+               <div className="bg-white rounded-[4rem] shadow-3xl w-full max-w-lg overflow-hidden border-[15px] border-white/20 flex flex-col relative perspective">
+                   <div className="bg-emerald-600 p-12 text-center text-white relative overflow-hidden">
+                       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                       <div className="relative z-10">
+                            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-xl border border-white/30 shadow-2xl">
+                                <Ticket className="w-12 h-12 text-white" />
+                            </div>
+                            <h2 className="text-4xl font-black tracking-tighter uppercase italic leading-none">Access Pass</h2>
+                            <p className="text-[10px] text-emerald-100 font-black uppercase tracking-[0.4em] mt-3">Gateway Tourism Authorization</p>
+                       </div>
+                   </div>
+                   
+                   <div className="p-12 space-y-10">
+                       <div className="space-y-4">
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attraction Node</p>
+                           <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase italic">{selectedAttraction.name}</h3>
+                           <div className="flex items-center gap-3 text-slate-500 font-bold uppercase text-[10px] tracking-widest italic">
+                               <MapPin className="w-4 h-4 text-emerald-500" /> {selectedAttraction.location}
+                           </div>
+                       </div>
+
+                       <div className="bg-slate-50 p-10 rounded-[3rem] flex flex-col items-center justify-center border-4 border-slate-100 relative group">
+                            <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <QrIcon className="w-48 h-48 text-slate-900 mb-8 relative z-10" />
+                            <div className="text-center relative z-10">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pass Hash ID</p>
+                                <p className="font-mono font-black text-lg text-emerald-600">{ticketRef}</p>
+                            </div>
+                       </div>
+
+                       <div className="space-y-4 border-t border-slate-100 pt-10">
+                           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                               <span>Security Tier</span>
+                               <span className="text-emerald-600 flex items-center gap-2"><ShieldCheck className="w-3.5 h-3.5" /> Tier 3 Verified</span>
+                           </div>
+                           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                               <span>Authorized Fare</span>
+                               <span className="text-slate-900 font-mono text-lg">₦ {selectedAttraction.ticketPrice.toLocaleString()}</span>
+                           </div>
+                       </div>
+
+                       <div className="flex gap-4">
+                            <button onClick={() => setShowTicketOverlay(false)} className="flex-1 py-5 border-4 border-slate-100 text-slate-400 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">Dismiss Pass</button>
+                            <button className="flex-[2] py-5 bg-slate-950 text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-2xl flex items-center justify-center gap-3 group">
+                                <Smartphone className="w-4 h-4 group-hover:animate-bounce" /> Save to Wallet
+                            </button>
+                       </div>
+                   </div>
+
+                   <div className="p-6 bg-slate-950 text-center text-[8px] text-emerald-500/40 font-black uppercase tracking-[0.5em] border-t border-white/5">
+                       IṢẸ́YÁÁ PROTOCOL V4.2 • CRYPTO-ANCHORED IDENTITY
+                   </div>
+               </div>
+          </div>
+      )}
+
+      {/* VEO VIDEO GENERATION LOADING OVERLAY */}
+      {isGeneratingVideo && (
+          <div className="fixed inset-0 z-[600] bg-slate-950/98 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-12">
+              <div className="relative w-96 h-96 mb-16">
+                  <div className="absolute inset-0 border-[15px] border-emerald-500/5 rounded-full" />
+                  <div className="absolute inset-0 border-[15px] border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                      <Clapperboard className="w-24 h-24 text-emerald-500 animate-pulse" />
+                      <div className="flex gap-2">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{animationDelay: '200ms'}} />
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{animationDelay: '400ms'}} />
+                      </div>
+                  </div>
+              </div>
+              <div className="space-y-6 max-w-2xl">
+                  <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter">Action Synthesis</h3>
+                  <p className="text-emerald-500 font-bold uppercase tracking-[0.5em] text-xs h-6 animate-in fade-in slide-in-from-bottom-2" key={loadingMsgIdx}>
+                      {LOADING_MESSAGES[loadingMsgIdx]}
+                  </p>
+                  <p className="text-slate-500 text-sm font-medium mt-10 max-w-lg mx-auto leading-relaxed">
+                      Please wait. Our Veo 3.1 engine is deep-dreaming this heritage action story in high-fidelity 4K illustrator style. This requires a paid authorization node.
+                  </p>
+              </div>
+          </div>
+      )}
+
+      {/* TICKET PROCESSING OVERLAY */}
+      {isProcessingTicket && (
+          <div className="fixed inset-0 z-[620] bg-slate-950/90 backdrop-blur-2xl flex flex-col items-center justify-center text-center p-12">
+              <div className="relative w-72 h-72 mb-12">
+                  <div className="absolute inset-0 border-[15px] border-emerald-500/10 rounded-full"></div>
+                  <div className="absolute inset-0 border-[15px] border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                      <Ticket className="w-20 h-20 text-emerald-500 animate-pulse" />
+                  </div>
+              </div>
+              <div className="space-y-4">
+                  <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Authorizing...</h3>
+                  <p className="text-emerald-500 font-bold uppercase tracking-[0.5em] text-[10px]">Syncing Fare Node with State Ledger</p>
+              </div>
+          </div>
+      )}
+
+      {/* VIDEO PLAYER MODAL */}
+      {isVideoModalOpen && (
+          <div className="fixed inset-0 z-[550] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6 md:p-12 animate-in fade-in duration-500">
+               <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-6xl overflow-hidden border-[15px] border-white/10 flex flex-col h-[85vh]">
+                   <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
+                       <div className="flex items-center gap-6">
+                           <div className="p-4 bg-emerald-600 rounded-2xl shadow-xl text-white">
+                               <Sparkles className="w-6 h-6" />
+                           </div>
+                           <div>
+                               <h3 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">Illustrator Story Weaver</h3>
+                               <p className="text-[10px] text-emerald-600 font-black uppercase tracking-[0.5em]">Veo 3.1 Cinema Protocol Active</p>
+                           </div>
+                       </div>
+                       <button onClick={() => setIsVideoModalOpen(false)} className="p-5 hover:bg-slate-100 rounded-full text-slate-400 transition-all"><X className="w-8 h-8" /></button>
+                   </div>
+                   
+                   <div className="flex-1 overflow-y-auto p-12 space-y-12 custom-scrollbar bg-slate-50/50">
+                       {!generatedVideoUrl ? (
+                           <div className="space-y-10">
+                               <div className="bg-white p-10 rounded-[3rem] shadow-xl border-4 border-emerald-50">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6 mb-4 block">Visual Action Prompt</label>
+                                   <textarea 
+                                       value={videoPrompt}
+                                       onChange={(e) => setVideoPrompt(e.target.value)}
+                                       className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] focus:border-emerald-500 outline-none font-black text-3xl italic leading-tight text-slate-900"
+                                       rows={3}
+                                   />
+                               </div>
+
+                               <div className="grid md:grid-cols-3 gap-8">
+                                   {[
+                                       { t: 'Style', v: '4K Illustrator', i: Palette },
+                                       { t: 'Aspect Ratio', v: '16:9 Cinematic', i: Clapperboard },
+                                       { t: 'Quality', v: 'State Standard 1080p', i: Cpu }
+                                   ].map(spec => (
+                                       <div key={spec.t} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-md flex items-center gap-6">
+                                           <div className="p-4 bg-emerald-50 rounded-2xl text-emerald-600"><spec.i className="w-6 h-6" /></div>
+                                           <div><p className="text-[8px] font-black uppercase text-slate-400">{spec.t}</p><p className="font-bold text-slate-900">{spec.v}</p></div>
+                                       </div>
+                                   ))}
+                               </div>
+
+                               {!hasApiKey ? (
+                                   <div className="bg-amber-50 border-2 border-amber-200 p-10 rounded-[3rem] space-y-6 text-center">
+                                       <AlertTriangle className="w-12 h-12 text-amber-600 mx-auto" />
+                                       <h4 className="text-2xl font-black text-amber-900 uppercase italic">Paid Authorization Mandate</h4>
+                                       <p className="text-amber-800 text-lg font-medium max-w-lg mx-auto">To engage high-fidelity video synthesis, you must select an API key from a <strong>Paid Google Cloud Project</strong>. Keys from the free tier do not have permission for the Veo engine.</p>
+                                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Documentation: <a href="https://ai.google.dev/gemini-api/docs/billing" className="underline text-emerald-600" target="_blank" rel="noreferrer">ai.google.dev/billing</a></p>
+                                       <button onClick={handleSelectApiKey} className="px-12 py-5 bg-amber-600 text-white rounded-full font-black text-xl hover:bg-amber-700 transition-all shadow-xl shadow-amber-900/20 active:scale-95">Select Protocol Key</button>
+                                   </div>
+                               ) : (
+                                   <button 
+                                       onClick={generateHeritageVideo}
+                                       className="w-full py-10 bg-emerald-600 text-white rounded-full font-black text-4xl hover:bg-emerald-700 shadow-2xl shadow-emerald-600/40 transition-all active:scale-95 flex items-center justify-center gap-8 group"
+                                   >
+                                       <Zap className="w-12 h-12 group-hover:scale-125 transition-transform" /> COMMENCE WEAVING
+                                   </button>
+                               )}
+                           </div>
+                       ) : (
+                           <div className="space-y-12 animate-in zoom-in-95 duration-700">
+                               <div className="aspect-video bg-black rounded-[4rem] overflow-hidden shadow-3xl border-[10px] border-white relative group">
+                                   <video src={generatedVideoUrl} controls autoPlay className="w-full h-full object-contain" />
+                                   <div className="absolute top-8 left-8 bg-emerald-600 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl flex items-center gap-3">
+                                       <ShieldCheck className="w-4 h-4" /> AUTHENTICATED AI SYNTHESIS
+                                   </div>
+                               </div>
+                               <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                                   <div className="space-y-2">
+                                       <h4 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Synthesized Legend</h4>
+                                       <p className="text-slate-400 font-medium italic text-xl">4K Illustrator Action Narrative • Veo 3.1 Engine</p>
+                                   </div>
+                                   <div className="flex gap-4">
+                                       <button onClick={() => setGeneratedVideoUrl(null)} className="px-10 py-5 bg-slate-900 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">Reset Session</button>
+                                       <a href={generatedVideoUrl} download="iseyaa-heritage-action.mp4" className="px-10 py-5 border-4 border-slate-100 text-slate-400 rounded-full font-black text-xs uppercase tracking-widest hover:text-emerald-600 hover:border-emerald-50 transition-all flex items-center gap-3">
+                                           <Smartphone className="w-4 h-4" /> Download Node
+                                       </a>
+                                   </div>
+                               </div>
+                           </div>
+                       )}
+                   </div>
+                   
+                   <div className="p-8 bg-slate-950 text-center text-[10px] text-emerald-500/60 font-black uppercase tracking-[0.5em] border-t border-white/5">
+                       IṢẸ́YÁÁ NEURAL OS • POWERED BY VEO-3.1 CINEMA ENGINE
+                   </div>
+               </div>
+          </div>
+      )}
+
+      {/* IṢẸ́YÁÁ INFO MODAL */}
+      {showIseyaaInfo && (
+          <div className="fixed inset-0 z-[700] bg-slate-950/95 backdrop-blur-3xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+               <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-3xl overflow-hidden border-[15px] border-emerald-600/10 flex flex-col p-16 space-y-10">
+                   <div className="flex justify-between items-center">
+                       <div className="bg-emerald-600 p-5 rounded-3xl text-white shadow-xl">
+                           <Globe className="w-10 h-10" />
+                       </div>
+                       <button onClick={() => setShowIseyaaInfo(false)} className="p-4 hover:bg-slate-100 rounded-full text-slate-400 transition-all"><X className="w-8 h-8" /></button>
+                   </div>
+                   <div className="space-y-6">
+                       <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">What is IṢẸ́YÁÁ?</h2>
+                       <p className="text-xl text-slate-500 leading-relaxed font-light italic">
+                           IṢẸ́YÁÁ (Integrated Sports, Events, Youth, Arts & Attractions) is the official government-owned, AI-powered digital OS of Ogun State.
+                       </p>
+                       <p className="text-lg text-slate-400 leading-relaxed font-light">
+                           It serves as a unified economic hub connecting citizens, vendors, and tourists to state services, heritage archives, and global trade nodes using high-fidelity neural processing and the state's digital ledger.
+                       </p>
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                       {[
+                           { l: 'Vision', v: 'Integrated Economy', i: Zap },
+                           { l: 'Auth', v: 'State Biometric Core', i: Fingerprint }
+                       ].map(node => (
+                           <div key={node.l} className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex items-center gap-6">
+                               <node.i className="w-8 h-8 text-emerald-600" />
+                               <div><p className="text-[10px] font-black uppercase text-slate-400">{node.l}</p><p className="font-bold text-slate-900">{node.v}</p></div>
+                           </div>
+                       ))}
+                   </div>
+               </div>
+          </div>
+      )}
+
       {/* NEURAL DISCOVERY SCANNER OVERLAY */}
       {isScanning && (
           <div className="fixed inset-0 z-[500] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center text-center p-12">
@@ -246,12 +588,11 @@ export const Tourism: React.FC = () => {
                   <div className="absolute inset-0 flex items-center justify-center">
                       <SearchCode className="w-24 h-24 text-emerald-500 animate-pulse" />
                   </div>
-                  {/* The Scanning Bar */}
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500 shadow-[0_0_20px_#10b981] animate-[scan_2s_ease-in-out_infinite] z-20"></div>
               </div>
               <div className="space-y-4">
                   <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Neural Scan</h3>
-                  <p className="text-emerald-500 font-bold uppercase tracking-[0.6em] text-xs">Triangulating State Cultural Nodes...</p>
+                  <p className="text-emerald-500 font-bold uppercase tracking-[0.6em] text-xs">Triangulating Cultural Nodes...</p>
               </div>
           </div>
       )}
@@ -322,8 +663,6 @@ export const Tourism: React.FC = () => {
                               <CloudSun className="w-5 h-5" /> {selectedAttraction.temperature}°C • {selectedAttraction.weather}
                           </div>
                       </div>
-                      
-                      {/* Telemetry Overlays */}
                       <div className="absolute top-8 right-8 space-y-4 z-20">
                           <div className="bg-black/60 backdrop-blur px-5 py-3 rounded-2xl border border-white/10 text-white flex items-center gap-4">
                               <div className="w-2 h-10 bg-emerald-500 rounded-full"></div>
@@ -348,7 +687,6 @@ export const Tourism: React.FC = () => {
                               </div>
                           </div>
                           <p className="text-slate-500 leading-relaxed text-2xl font-light italic">"{selectedAttraction.description}"</p>
-                          
                           <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-inner">
                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Gate Protocol Access</p>
                                <div className="flex justify-between items-baseline">
@@ -356,7 +694,6 @@ export const Tourism: React.FC = () => {
                                    <span className="text-slate-400 font-black uppercase text-xs tracking-widest">/ Per User</span>
                                </div>
                           </div>
-
                           <div className="space-y-4">
                              <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                  <span>Neural Integration Score</span>
@@ -369,7 +706,8 @@ export const Tourism: React.FC = () => {
                       </div>
                       <div className="mt-16 space-y-6">
                           <button 
-                            className="w-full py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-700 shadow-2xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-6 group"
+                            onClick={handleGenerateTicket}
+                            className="w-full py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-700 shadow-2xl transition-all flex items-center justify-center gap-6 group active:scale-[0.98]"
                             aria-label={`Generate access ticket for ${selectedAttraction.name} at ₦ ${selectedAttraction.ticketPrice.toLocaleString()}`}
                           >
                               <Ticket className="w-9 h-9 group-hover:rotate-12 transition-transform" /> Generate Access Ticket
@@ -383,7 +721,7 @@ export const Tourism: React.FC = () => {
                               </button>
                           </div>
                           <p className="text-center text-[9px] text-slate-400 font-black uppercase tracking-[0.4em] mt-8 flex items-center justify-center gap-2">
-                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Secured by ISEYAA Neural Identity Hub
+                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Secured by IṢẸ́YÁÁ Neural Identity Hub
                           </p>
                       </div>
                   </div>
@@ -399,7 +737,6 @@ export const Tourism: React.FC = () => {
                       <button 
                         onClick={() => { setActiveArchiveStory(null); setIsPlaying(false); }} 
                         className="p-5 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all"
-                        aria-label="Go back to heritage archive"
                       >
                         <ChevronLeft className="w-8 h-8" />
                       </button>
@@ -409,11 +746,15 @@ export const Tourism: React.FC = () => {
                       </div>
                   </div>
                   <div className="flex items-center gap-6">
-                      <button className="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all">Download Archive</button>
+                      <button 
+                        onClick={() => handleDownloadArchive(activeArchiveStory)}
+                        className="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3 group"
+                      >
+                          <FileDown className="w-4 h-4 text-emerald-500 group-hover:scale-110 transition-transform" /> Download Archive
+                      </button>
                       <button 
                         onClick={() => { setActiveArchiveStory(null); setIsPlaying(false); }} 
                         className="p-4 text-slate-500 hover:text-white"
-                        aria-label="Close archive player"
                       >
                         <X />
                       </button>
@@ -421,7 +762,6 @@ export const Tourism: React.FC = () => {
               </header>
 
               <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                  {/* Media Content */}
                   <div className="lg:w-1/2 h-1/2 lg:h-full relative bg-black group">
                       {activeArchiveStory.type === 'video' ? (
                           <video autoPlay loop muted={!isPlaying} className="w-full h-full object-cover opacity-60">
@@ -432,7 +772,6 @@ export const Tourism: React.FC = () => {
                             src={activeArchiveStory.image} 
                             alt={activeArchiveStory.title}
                             className="w-full h-full opacity-40 grayscale group-hover:grayscale-0"
-                            imgClassName="transition-all duration-[3s]"
                           />
                       )}
                       
@@ -442,7 +781,6 @@ export const Tourism: React.FC = () => {
                               <button 
                                 onClick={() => setIsPlaying(!isPlaying)}
                                 className="w-40 h-40 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-[0_0_80px_rgba(16,185,129,0.4)] hover:scale-110 active:scale-90 transition-all z-20"
-                                aria-label={isPlaying ? "Pause archive media" : "Play archive media"}
                               >
                                   {isPlaying ? <Pause className="w-16 h-16 fill-current" /> : <Play className="w-16 h-16 fill-current ml-3" />}
                               </button>
@@ -461,15 +799,22 @@ export const Tourism: React.FC = () => {
                       </div>
                   </div>
 
-                  {/* Text Content */}
                   <div className="lg:w-1/2 h-1/2 lg:h-full overflow-y-auto p-12 lg:p-24 bg-slate-900 border-l border-white/5 custom-scrollbar">
                       <div className="max-w-2xl mx-auto space-y-16">
                           <div className="space-y-6">
-                              <span className="text-emerald-500 font-black tracking-[0.6em] text-[10px] uppercase block">Preserving History</span>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-emerald-500 font-black tracking-[0.6em] text-[10px] uppercase block">Preserving History</span>
+                                  <button 
+                                    onClick={() => openWeaverForStory(activeArchiveStory)}
+                                    className="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-purple-600 hover:text-white transition-all animate-pulse"
+                                  >
+                                      <Clapperboard className="w-3 h-3" /> Synthesize AI Animation
+                                  </button>
+                              </div>
                               <h2 className="text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tighter uppercase italic">{activeArchiveStory.title}</h2>
                               <div className="flex items-center gap-6 pt-4 border-t border-white/10">
                                   <div className="flex items-center gap-3">
-                                      <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-emerald-500 font-black text-lg shadow-inner" aria-hidden="true">{activeArchiveStory.narrator.charAt(0)}</div>
+                                      <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-emerald-500 font-black text-lg shadow-inner">{activeArchiveStory.narrator.charAt(0)}</div>
                                       <div>
                                           <p className="text-white font-bold uppercase tracking-widest text-xs">{activeArchiveStory.narrator}</p>
                                           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Verified Cultural Elder</p>
@@ -481,9 +826,15 @@ export const Tourism: React.FC = () => {
                               <p className="text-3xl lg:text-5xl font-light text-slate-400 leading-[1.4] italic first-letter:text-9xl first-letter:font-black first-letter:text-emerald-500 first-letter:mr-6 first-letter:float-left first-letter:leading-[0.8] selection:bg-emerald-500/40">
                                   {activeArchiveStory.content}
                               </p>
-                              <div className="mt-20 p-10 bg-white/5 rounded-[3rem] border border-white/5 space-y-4">
+                              <div className="mt-20 p-10 bg-white/5 rounded-[3rem] border border-white/5 space-y-8">
                                   <h4 className="text-white font-black uppercase tracking-widest text-xs flex items-center gap-3"><Layers className="w-4 h-4 text-emerald-500" /> Archival Metadata</h4>
                                   <p className="text-sm text-slate-500 leading-relaxed font-medium">Recorded at the Ogun Digital Archive Hub in Jan 2024. This signal is part of the "Ancestral Wisdom" stream for future Egba generations.</p>
+                                  <button 
+                                      onClick={() => handleDownloadArchive(activeArchiveStory)}
+                                      className="flex items-center gap-3 text-emerald-500 font-black text-[10px] uppercase tracking-widest hover:text-white transition-colors"
+                                  >
+                                      <FileText className="w-4 h-4" /> Download Full Transcript Node
+                                  </button>
                               </div>
                           </div>
                       </div>
@@ -496,7 +847,7 @@ export const Tourism: React.FC = () => {
       <header className="border-b border-slate-100 bg-white sticky top-0 z-[60] px-8 py-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-6">
-                <div className="bg-emerald-600 p-4 rounded-[1.5rem] shadow-2xl shadow-emerald-600/20" aria-hidden="true"><Compass className="text-white w-8 h-8" /></div>
+                <div className="bg-emerald-600 p-4 rounded-[1.5rem] shadow-2xl shadow-emerald-600/20"><Compass className="text-white w-8 h-8" /></div>
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase italic">Tourism <span className="text-emerald-600">&</span> Culture</h1>
                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.5em] mt-2 flex items-center gap-2">
@@ -505,7 +856,7 @@ export const Tourism: React.FC = () => {
                 </div>
             </div>
 
-            <nav className="flex bg-slate-100 p-2 rounded-full border border-slate-200 shadow-inner overflow-hidden" aria-label="Tourism sections">
+            <nav className="flex bg-slate-100 p-2 rounded-full border border-slate-200 shadow-inner overflow-hidden">
                 {[
                   { id: 'explore', icon: Compass, label: 'EXPLORE' },
                   { id: 'archive', icon: BookOpen, label: 'ARCHIVE' },
@@ -515,8 +866,6 @@ export const Tourism: React.FC = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)} 
                       className={`flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black tracking-widest transition-all ${activeTab === tab.id ? 'bg-white shadow-2xl text-emerald-600 scale-105' : 'text-slate-500 hover:text-slate-900'}`}
-                      aria-current={activeTab === tab.id ? 'page' : undefined}
-                      aria-label={`Switch to ${tab.label} section`}
                     >
                       <tab.icon className="w-4 h-4" /> {tab.label}
                     </button>
@@ -539,14 +888,22 @@ export const Tourism: React.FC = () => {
                                 <Sparkles className="w-4 h-4" /> AI Personalized Recommendations
                             </span>
                             <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic leading-none">Find Your Next Story.</h2>
-                            <p className="text-slate-400 text-lg font-light italic max-w-xl">Let our Neural Agent scan the 40 state-verified wonder sites to match your unique cultural blueprint.</p>
+                            <p className="text-slate-400 text-lg font-light italic max-w-xl">Let our Neural Agent scan verified wonder sites to match your unique cultural blueprint.</p>
                         </div>
-                        <button 
-                            onClick={handleNeuralScan}
-                            className="px-12 py-7 bg-emerald-600 text-white rounded-full font-black text-xl hover:bg-emerald-500 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] active:scale-95 flex items-center gap-4 group/btn"
-                        >
-                            <Fingerprint className="w-7 h-7 group-hover/btn:scale-110" /> ENGAGE NEURAL SCAN
-                        </button>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => setShowIseyaaInfo(true)}
+                                className="p-7 bg-white/5 border-2 border-white/10 rounded-full text-white hover:bg-white/10 transition-all active:scale-95"
+                            >
+                                <Info className="w-8 h-8" />
+                            </button>
+                            <button 
+                                onClick={handleNeuralScan}
+                                className="px-12 py-7 bg-emerald-600 text-white rounded-full font-black text-xl hover:bg-emerald-500 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] active:scale-95 flex items-center gap-4 group/btn"
+                            >
+                                <Fingerprint className="w-7 h-7 group-hover/btn:scale-110" /> ENGAGE NEURAL SCAN
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -557,7 +914,7 @@ export const Tourism: React.FC = () => {
                     </div>
                     <div className="bg-emerald-50 px-8 py-4 rounded-full border border-emerald-100 flex items-center gap-6">
                         <div className="flex -space-x-4">
-                            {[1,2,3,4].map(i => <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-md"><img src={`https://i.pravatar.cc/100?img=${i+20}`} alt="Active tourist avatar" /></div>)}
+                            {[1,2,3,4].map(i => <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-md"><img src={`https://i.pravatar.cc/100?img=${i+20}`} alt="Active tourist" /></div>)}
                         </div>
                         <p className="text-xs font-black text-emerald-800 uppercase tracking-widest">4.2k Active Tourists</p>
                     </div>
@@ -569,8 +926,6 @@ export const Tourism: React.FC = () => {
                           key={attr.id} 
                           onClick={() => setSelectedAttraction(attr)} 
                           className="group cursor-pointer bg-white rounded-[4rem] border-2 border-slate-50 p-8 shadow-sm hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] transition-all flex flex-col h-full hover:-translate-y-3"
-                          role="button"
-                          aria-label={`View full details for ${attr.name}`}
                         >
                             <div className="aspect-[4/5] rounded-[3.5rem] overflow-hidden relative mb-10 shadow-2xl">
                                 <OptimizedImage 
@@ -623,7 +978,7 @@ export const Tourism: React.FC = () => {
                                 ULTIMATE GATEWAY PASS
                              </span>
                              <h2 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.8] uppercase italic">The 40 Wonder Sites.</h2>
-                             <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Access every historic shrine, museum, and safari park in Ogun State with one intelligent digital pass. Verified by ISEYAA Identity.</p>
+                             <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Access every historic shrine, museum, and safari park in Ogun State with one intelligent digital pass. Verified by IṢẸ́YÁÁ Identity.</p>
                              <div className="space-y-6">
                                 <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest">
                                     <span className="text-emerald-500">Node Completion Progress</span>
@@ -635,7 +990,6 @@ export const Tourism: React.FC = () => {
                              </div>
                              <button 
                                 className="px-16 py-8 bg-emerald-600 text-white rounded-full font-black text-3xl hover:bg-emerald-500 transition-all shadow-[0_30px_60px_-10px_rgba(16,185,129,0.5)] active:scale-95 flex items-center gap-8 group"
-                                aria-label="Purchase Ultimate Gateway Pass for ₦ 50,000"
                              >
                                 Get Pass — ₦ 50k <ArrowRight className="w-10 h-10 group-hover:translate-x-5 transition-transform" />
                              </button>
@@ -648,7 +1002,7 @@ export const Tourism: React.FC = () => {
                                 { l: 'Auth Signal', v: 'Ready', i: QrCode }
                             ].map((p, i) => (
                                 <div key={i} className="aspect-square bg-white/[0.03] rounded-[4rem] border border-white/10 p-12 flex flex-col justify-center items-center text-center group hover:bg-white/5 transition-all">
-                                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform" aria-hidden="true"><p.i className="w-10 h-10" /></div>
+                                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform"><p.i className="w-10 h-10" /></div>
                                     <p className="text-xl font-black italic mb-2 tracking-tighter uppercase">{p.v}</p>
                                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{p.l}</p>
                                 </div>
@@ -664,7 +1018,33 @@ export const Tourism: React.FC = () => {
                 <div className="text-center max-w-4xl mx-auto space-y-10">
                     <span className="text-emerald-600 font-black uppercase tracking-[0.6em] text-[10px]">Oral History & Lore</span>
                     <h2 className="text-7xl md:text-8xl font-black text-slate-950 tracking-tighter uppercase leading-[0.8] italic">Digital <span className="text-emerald-600">Heritage</span> Archive.</h2>
-                    <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Traverse the oral histories and ancient practices of the Gateway State through high-fidelity digital artifacts.</p>
+                    <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Traverse oral histories and ancient practices through high-fidelity digital artifacts.</p>
+                </div>
+
+                {/* NEURAL STORY WEAVER CTA */}
+                <div className="bg-slate-900 rounded-[3rem] p-16 text-white relative overflow-hidden shadow-3xl border-[10px] border-white group">
+                    <div className="absolute top-0 right-0 w-[600px] h-full bg-emerald-500/10 -skew-x-12 translate-x-20 group-hover:scale-110 transition-transform duration-[5s]" />
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                        <div className="space-y-6 text-center md:text-left">
+                            <div className="flex items-center gap-4 justify-center md:justify-start">
+                                <div className="p-3 bg-emerald-600 rounded-2xl shadow-xl animate-pulse">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <span className="text-emerald-500 font-black uppercase tracking-[0.5em] text-[10px]">NEW: IṢẸ́YÁÁ AI STORY WEAVER</span>
+                            </div>
+                            <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-[0.9]">Synthesize Illustrator Legends.</h2>
+                            <p className="text-slate-400 text-xl font-light italic max-w-2xl">Use our Neural 4K Storytelling engine to create cinematic illustrator-style action videos of folklore. Powered by Veo 3.1 Synthesis Engine.</p>
+                        </div>
+                        <button 
+                            onClick={() => {
+                                setVideoPrompt('A cinematic 4K illustrator-style action animation of the Egba liberation war, featuring legendary warriors and vivid hand-painted textures.');
+                                setIsVideoModalOpen(true);
+                            }}
+                            className="px-16 py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-500 transition-all shadow-[0_30px_60px_-10px_rgba(16,185,129,0.5)] active:scale-95 flex items-center gap-6 group/btn"
+                        >
+                            <Clapperboard className="w-9 h-9 group-hover/btn:rotate-12 transition-transform" /> START WEAVING
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-16">
@@ -673,8 +1053,6 @@ export const Tourism: React.FC = () => {
                           key={story.id} 
                           onClick={() => setActiveArchiveStory(story)} 
                           className="group cursor-pointer bg-white rounded-[4rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-[0_60px_120px_-30px_rgba(0,0,0,0.15)] transition-all flex flex-col h-[650px] hover:-translate-y-4"
-                          role="button"
-                          aria-label={`Listen and explore ${story.title} narrated by ${story.narrator}`}
                         >
                             <div className="h-3/5 relative overflow-hidden">
                                 <OptimizedImage 
@@ -685,7 +1063,7 @@ export const Tourism: React.FC = () => {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                                 <div className="absolute bottom-10 left-10 flex items-center gap-6">
-                                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-3xl group-hover:scale-110 transition-all border-[8px] border-white/20" aria-hidden="true"><Play className="w-9 h-9 fill-current ml-2" /></div>
+                                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-3xl group-hover:scale-110 transition-all border-[8px] border-white/20"><Play className="w-9 h-9 fill-current ml-2" /></div>
                                     <div className="space-y-1">
                                         <p className="text-white font-black text-2xl leading-none uppercase italic">{story.title}</p>
                                         <p className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2"><Layers className="w-3.5 h-3.5" /> Start {story.type} Protocol</p>
@@ -696,13 +1074,13 @@ export const Tourism: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <span className="px-6 py-2 bg-slate-50 text-slate-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-100">Category: {story.category}</span>
-                                        <span className="text-xs font-black text-slate-300 font-mono" aria-label={`Duration ${story.duration}`}>{story.duration}</span>
+                                        <span className="text-xs font-black text-slate-300 font-mono">{story.duration}</span>
                                     </div>
                                     <p className="text-slate-500 leading-relaxed text-2xl font-light italic">"{story.summary}"</p>
                                 </div>
                                 <div className="flex items-center justify-between pt-8 border-t border-slate-50">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-black" aria-hidden="true">Elder</div>
+                                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-black">Elder</div>
                                         <p className="text-sm font-bold text-slate-900">Narrated by {story.narrator}</p>
                                     </div>
                                     <ChevronRight className="text-emerald-500 w-8 h-8 group-hover:translate-x-3 transition-transform" />
@@ -727,15 +1105,14 @@ export const Tourism: React.FC = () => {
                         <button 
                             onClick={() => setIsAdding(true)} 
                             className="bg-slate-900 text-white px-16 py-8 rounded-full font-black text-2xl hover:bg-emerald-600 shadow-3xl shadow-slate-900/20 transition-all flex items-center gap-6 active:scale-95 group"
-                            aria-label="Add new tourism experience"
                         >
                             <Plus className="w-10 h-10 group-hover:rotate-180 transition-transform" /> NEW EXPERIENCE
                         </button>
                     </div>
 
-                    <div className="divide-y divide-slate-100" role="list">
+                    <div className="divide-y divide-slate-100">
                         {attractions.map(attr => (
-                            <div key={attr.id} className="py-16 flex flex-col md:flex-row justify-between items-center gap-12 group" role="listitem">
+                            <div key={attr.id} className="py-16 flex flex-col md:flex-row justify-between items-center gap-12 group">
                                 <div className="flex items-center gap-12">
                                     <OptimizedImage 
                                         src={attr.image} 
@@ -761,16 +1138,10 @@ export const Tourism: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-6 opacity-0 group-hover:opacity-100 transition-all">
-                                    <button 
-                                        className="p-6 bg-white border border-slate-100 rounded-[2rem] text-slate-400 hover:text-emerald-600 shadow-3xl hover:-translate-y-2 transition-all"
-                                        aria-label={`Expand details for ${attr.name}`}
-                                    >
+                                    <button className="p-6 bg-white border border-slate-100 rounded-[2rem] text-slate-400 hover:text-emerald-600 shadow-3xl hover:-translate-y-2 transition-all">
                                         <Maximize2 className="w-8 h-8" />
                                     </button>
-                                    <button 
-                                        className="p-6 bg-white border border-slate-100 rounded-[2rem] text-slate-400 hover:text-red-500 shadow-3xl hover:-translate-y-2 transition-all"
-                                        aria-label={`Remove ${attr.name} experience`}
-                                    >
+                                    <button className="p-6 bg-white border border-slate-100 rounded-[2rem] text-slate-400 hover:text-red-500 shadow-3xl hover:-translate-y-2 transition-all">
                                         <X className="w-8 h-8" />
                                     </button>
                                 </div>
@@ -780,71 +1151,46 @@ export const Tourism: React.FC = () => {
                 </div>
 
                 {isAdding && (
-                    <div className="fixed inset-0 z-[400] bg-emerald-950/98 backdrop-blur-[60px] flex items-center justify-center p-4 animate-in fade-in duration-500" role="dialog" aria-labelledby="add-title">
+                    <div className="fixed inset-0 z-[400] bg-emerald-950/98 backdrop-blur-[60px] flex items-center justify-center p-4 animate-in fade-in duration-500">
                         <form onSubmit={handleAddAttraction} className="bg-white w-full max-w-4xl rounded-[5rem] shadow-3xl overflow-hidden flex flex-col max-h-[92vh] border-[15px] border-white/20">
                             <div className="p-16 border-b border-slate-50 flex justify-between items-center sticky top-0 bg-white z-10">
                                 <div className="space-y-2">
-                                    <h3 id="add-title" className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Broadcast New.</h3>
+                                    <h3 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Broadcast New.</h3>
                                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em]">Verified Ogun Tourism Node</p>
                                 </div>
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsAdding(false)} 
-                                    className="p-6 hover:bg-slate-100 rounded-[2rem] transition-all"
-                                    aria-label="Close add attraction modal"
-                                >
+                                <button type="button" onClick={() => setIsAdding(false)} className="p-6 hover:bg-slate-100 rounded-[2rem] transition-all">
                                     <X className="w-10 h-10 text-slate-300" />
                                 </button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-16 space-y-12 custom-scrollbar">
                                 <div className="space-y-4">
-                                    <label htmlFor="attr-title" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Experience Official Title</label>
-                                    <input id="attr-title" required value={newAttr.name} onChange={e => setNewAttr({...newAttr, name: e.target.value})} placeholder="e.g. Ancient Egba Tunnels Expedition" className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-3xl italic" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Experience Official Title</label>
+                                    <input required value={newAttr.name} onChange={e => setNewAttr({...newAttr, name: e.target.value})} placeholder="e.g. Ancient Egba Tunnels Expedition" className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-3xl italic" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-12">
                                     <div className="space-y-4">
-                                        <label htmlFor="attr-price" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Ticket Fare Node (₦)</label>
-                                        <input id="attr-price" required type="number" min={5000} value={newAttr.ticketPrice} onChange={e => setNewAttr({...newAttr, ticketPrice: Number(e.target.value)})} className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-3xl italic" />
-                                        <p className="text-[10px] text-amber-600 font-black ml-6 uppercase tracking-widest italic animate-pulse">Minimum ₦5,000 Mandate</p>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Ticket Fare Node (₦)</label>
+                                        <input required type="number" min={5000} value={newAttr.ticketPrice} onChange={e => setNewAttr({...newAttr, ticketPrice: Number(e.target.value)})} className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-3xl italic" />
                                     </div>
                                     <div className="space-y-4">
-                                        <label htmlFor="attr-category" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Category Node</label>
-                                        <select id="attr-category" value={newAttr.category} onChange={e => setNewAttr({...newAttr, category: e.target.value as any})} className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-2xl appearance-none bg-white cursor-pointer uppercase tracking-widest italic">
-                                            <option>Heritage</option>
-                                            <option>Nature</option>
-                                            <option>Experience</option>
-                                            <option>Museum</option>
-                                            <option>Top Pick</option>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Category Node</label>
+                                        <select value={newAttr.category} onChange={e => setNewAttr({...newAttr, category: e.target.value as any})} className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-black text-2xl appearance-none bg-white cursor-pointer uppercase tracking-widest italic">
+                                            <option>Heritage</option><option>Nature</option><option>Experience</option><option>Museum</option><option>Top Pick</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <label htmlFor="attr-location" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Geo-Location ID</label>
-                                    <input id="attr-location" required value={newAttr.location} onChange={e => setNewAttr({...newAttr, location: e.target.value})} placeholder="e.g. Olumo Axis, Abeokuta" className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-bold text-xl uppercase tracking-widest" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Geo-Location ID</label>
+                                    <input required value={newAttr.location} onChange={e => setNewAttr({...newAttr, location: e.target.value})} placeholder="e.g. Olumo Axis, Abeokuta" className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-bold text-xl uppercase tracking-widest" />
                                 </div>
                                 <div className="space-y-4">
-                                    <label htmlFor="attr-image" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Hero Media visual Proxy (URL)</label>
-                                    <input id="attr-image" required value={newAttr.image} onChange={e => setNewAttr({...newAttr, image: e.target.value})} placeholder="Paste cinematic image URL here..." className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-full focus:border-emerald-500 outline-none font-bold text-lg" />
-                                </div>
-                                <div className="space-y-4">
-                                    <label htmlFor="attr-desc" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Experience Narrative Detail</label>
-                                    <textarea id="attr-desc" required rows={5} value={newAttr.description} onChange={e => setNewAttr({...newAttr, description: e.target.value})} placeholder="Describe the ancestral techniques, safety protocols, and unique spirit..." className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-[3rem] focus:border-emerald-500 outline-none font-medium text-2xl leading-relaxed italic"></textarea>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-6">Experience Narrative Detail</label>
+                                    <textarea required rows={5} value={newAttr.description} onChange={e => setNewAttr({...newAttr, description: e.target.value})} placeholder="Describe the ancestral techniques, safety protocols, and unique spirit..." className="w-full px-10 py-8 bg-slate-50 border-2 border-slate-100 rounded-[3rem] focus:border-emerald-500 outline-none font-medium text-2xl leading-relaxed italic"></textarea>
                                 </div>
                             </div>
                             <div className="p-16 border-t border-slate-50 bg-slate-50 flex gap-10">
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsAdding(false)} 
-                                    className="flex-1 py-8 rounded-full font-black text-slate-400 hover:bg-slate-200 transition-all uppercase tracking-[0.3em] text-sm"
-                                    aria-label="Discard new experience entry"
-                                >
-                                    Discard Node
-                                </button>
-                                <button 
-                                    type="submit" 
-                                    className="flex-[2] py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-700 shadow-3xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-6 group"
-                                    aria-label="Submit and broadcast new experience to the state network"
-                                >
+                                <button type="button" onClick={() => setIsAdding(false)} className="flex-1 py-8 rounded-full font-black text-slate-400 hover:bg-slate-200 transition-all uppercase tracking-[0.3em] text-sm">Discard Node</button>
+                                <button type="submit" className="flex-[2] py-8 bg-emerald-600 text-white rounded-full font-black text-2xl hover:bg-emerald-700 shadow-3xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-6 group">
                                     <Save className="w-8 h-8 group-hover:scale-125 transition-transform" /> COMMIT BROADCAST
                                 </button>
                             </div>
@@ -859,15 +1205,16 @@ export const Tourism: React.FC = () => {
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar-none::-webkit-scrollbar { display: none; }
         .custom-scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         @keyframes scan {
           0% { top: 0; opacity: 1; }
           50% { top: 100%; opacity: 0.5; }
           100% { top: 0; opacity: 1; }
         }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .perspective { perspective: 1000px; }
       `}} />
     </div>
   );
