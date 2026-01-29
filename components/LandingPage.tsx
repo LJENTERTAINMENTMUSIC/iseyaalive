@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, Globe, Zap, Rocket, Calendar, Ticket, Sparkles, Timer, 
   Star, ShieldCheck, Bed, MapPin, ShieldHalf
 } from 'lucide-react';
-import { Logo } from './Logo';
+import { Logo } from './Logo.tsx';
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -91,7 +90,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
          ))}
       </section>
 
-      {/* Live Pulse - Sliding Left */}
+      {/* Live Pulse */}
       <section className="bg-emerald-950 py-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-8 mb-12 flex justify-between items-end relative z-10">
               <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic"><span className="text-emerald-500">Live</span> Pulse</h2>
@@ -115,7 +114,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           </div>
       </section>
 
-      {/* Luxury Stays - SLIDING RIGHT */}
+      {/* Luxury Stays */}
       <section className="py-32 bg-[#FDFBF7] relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-8 mb-20">
               <span className="text-emerald-600 font-black uppercase tracking-[0.6em] text-[10px]">HERITAGE HOSPITALITY</span>
@@ -146,7 +145,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
       <footer className="bg-slate-950 text-white py-32 px-8">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
               <Logo variant="light" className="h-12" />
-              <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">© 2026 OGUN STATE GOVERNMENT • IṢẸ́YÁÁ PROTOCOL V4.2</p>
+              <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">© 2026 OGUN STATE GOVERNMENT • IṢẸ́YÁÁ PROTOCOL V4.4</p>
           </div>
       </footer>
     </div>
