@@ -1,9 +1,7 @@
-
 import React, { useState } from 'react';
 import { 
     UserCheck, X, Check, Search, Filter, ShieldAlert, 
     MoreHorizontal, Mail, Phone, Calendar, Clock, 
-    // Added ShieldHalf to the import list to fix the undefined error
     ShieldCheck, Building2, Store, User, ShieldHalf
 } from 'lucide-react';
 
@@ -92,7 +90,6 @@ export const Approvals: React.FC = () => {
                                             user.role === 'government' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                             'bg-amber-50 text-amber-600 border-amber-100'
                                         }`}>
-                                            {/* ShieldHalf is now correctly imported and used below */}
                                             {user.role === 'admin' ? <ShieldHalf className="w-3 h-3" /> : 
                                              user.role === 'government' ? <Building2 className="w-3 h-3" /> : 
                                              <Store className="w-3 h-3" />}

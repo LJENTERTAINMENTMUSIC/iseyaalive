@@ -1,14 +1,12 @@
-
-import React, { useState, useRef } from 'react';
-import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History, ShieldCheck, Download, RefreshCcw, Lock, Eye, EyeOff, X, Loader2, CheckCircle2, User, Zap } from 'lucide-react';
-import { PaystackModal } from './PaystackModal';
+import React, { useState } from 'react';
+import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History, ShieldCheck, Lock, Eye, EyeOff, X, Loader2, CheckCircle2, User, Zap } from 'lucide-react';
+import { PaystackModal } from './PaystackModal.tsx';
 
 export const Wallet: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'earnings'>('overview');
   const [showBalance, setShowBalance] = useState(true);
   const [balance, setBalance] = useState(245200.00);
   
-  // Modal & Form States
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
@@ -26,7 +24,6 @@ export const Wallet: React.FC = () => {
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Keeping track of cursor position is important for formatting inputs
     const { value } = e.target;
     setRawAmount(formatAmount(value));
   };
@@ -64,7 +61,6 @@ export const Wallet: React.FC = () => {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-10 animate-in fade-in duration-500">
       
-      {/* Refined Top Up Modal */}
       {isTopUpOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-emerald-950/60 backdrop-blur-sm">
             <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 border-4 border-white/20 animate-in zoom-in-95 duration-200">
@@ -109,7 +105,6 @@ export const Wallet: React.FC = () => {
         </div>
       )}
 
-      {/* Refined Transfer Modal */}
       {isTransferOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
             <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 animate-in zoom-in-95 duration-200">
@@ -178,7 +173,6 @@ export const Wallet: React.FC = () => {
         </div>
       </div>
 
-      {/* Recent History Grid */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex justify-between items-center">
               <h3 className="font-bold text-2xl text-slate-900 flex items-center gap-3"><History className="w-6 h-6 text-slate-400" /> Recent Transactions</h3>

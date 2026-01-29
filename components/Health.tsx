@@ -30,7 +30,6 @@ import {
   Thermometer,
   Brain,
   MoreHorizontal,
-  // Fix: Added missing Star icon import from lucide-react
   Star
 } from 'lucide-react';
 import { 
@@ -42,7 +41,7 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
-import { VendorChat } from './VendorChat';
+import { VendorChat } from './VendorChat.tsx';
 
 interface HealthPlan {
   id: string;
@@ -114,7 +113,6 @@ export const Health: React.FC = () => {
 
   const startConsultation = (doctor: Doctor) => {
     setIsAuthorizing(true);
-    // Simulate biometric/OS auth
     setTimeout(() => {
         setIsAuthorizing(false);
         setSelectedDoctor(doctor);
@@ -125,7 +123,6 @@ export const Health: React.FC = () => {
   return (
     <div className="p-6 md:p-12 max-w-[1600px] mx-auto space-y-12 animate-in fade-in duration-700">
       
-      {/* Authorization Overlay */}
       {isAuthorizing && (
           <div className="fixed inset-0 z-[300] bg-slate-950/90 backdrop-blur-2xl flex items-center justify-center text-center p-8">
               <div className="space-y-8 animate-in zoom-in-95">
@@ -144,7 +141,6 @@ export const Health: React.FC = () => {
           </div>
       )}
 
-      {/* Main Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-l-4 border-emerald-500 pl-8">
         <div>
            <span className="text-emerald-600 font-black text-[10px] uppercase tracking-[0.6em] mb-4 block">Unified Health Ecosystem</span>
@@ -164,8 +160,7 @@ export const Health: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation OS Bar */}
-      <div className="flex bg-slate-100 p-2 rounded-full border-4 border-slate-50 shadow-inner w-fit">
+      <div className="flex bg-slate-100 p-2 rounded-full border-4 border-slate-50 shadow-inner w-fit overflow-x-auto scrollbar-hide">
           {[
             { id: 'overview', icon: Activity, label: 'OVERVIEW' },
             { id: 'telemedicine', icon: Video, label: 'TELEMEDICINE' },
@@ -175,7 +170,7 @@ export const Health: React.FC = () => {
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black tracking-widest transition-all ${activeTab === tab.id ? 'bg-white shadow-2xl text-emerald-600 scale-105' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white shadow-2xl text-emerald-600 scale-105' : 'text-slate-500 hover:text-slate-900'}`}
               >
                   <tab.icon className="w-4 h-4" /> {tab.label}
               </button>
@@ -185,7 +180,6 @@ export const Health: React.FC = () => {
       {activeTab === 'overview' && (
           <div className="space-y-12 animate-in slide-in-from-bottom-6 duration-700">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                  {/* Digital Policy Card */}
                   <div className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden shadow-2xl border-[10px] border-white group">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[100px] opacity-10 -translate-y-20 translate-x-20 group-hover:scale-125 transition-transform duration-1000"></div>
                       <div className="flex justify-between items-start mb-12 relative z-10">
@@ -210,7 +204,6 @@ export const Health: React.FC = () => {
                       </div>
                   </div>
 
-                  {/* Real-time Diagnostics */}
                   <div className="lg:col-span-2 bg-white rounded-[3.5rem] p-12 border-4 border-slate-50 shadow-sm relative overflow-hidden group">
                        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                        <div className="flex justify-between items-center mb-12">
@@ -261,7 +254,6 @@ export const Health: React.FC = () => {
                   </div>
               </div>
 
-              {/* Quick Actions Matrix */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
                   {[
                     { t: 'Instant Consult', d: 'Video link with doctor.', i: Video, c: 'text-blue-600', bg: 'bg-blue-50', act: () => setActiveTab('telemedicine') },
@@ -321,7 +313,7 @@ export const Health: React.FC = () => {
                                <div>
                                    <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">{doc.name}</h4>
                                    <p className="text-emerald-600 text-xs font-black uppercase tracking-widest mt-2">{doc.specialty}</p>
-                                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase flex items-center justify-center gap-2 tracking-widest"><MapPin className="w-3 h-3" /> {doc.hospital}</p>
+                                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase flex items-center justify-center gap-2 tracking-widest"><MapPin className="w-3.5 h-3.5" /> {doc.hospital}</p>
                                </div>
                                <div className="w-full pt-6 border-t border-slate-50 flex gap-4">
                                    <button 
@@ -341,159 +333,10 @@ export const Health: React.FC = () => {
                       </div>
                   ))}
               </div>
-
-              <div className="bg-slate-950 rounded-[4rem] p-16 lg:p-32 text-white relative overflow-hidden shadow-3xl border-[15px] border-white">
-                  <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500 rounded-full blur-[150px] opacity-10 -translate-y-40 translate-x-40" />
-                  <div className="relative z-10 grid lg:grid-cols-2 gap-24 items-center">
-                      <div className="space-y-12">
-                           <span className="text-emerald-500 font-black uppercase tracking-[0.6em] text-[10px]">OS EMERGENCY PROTOCOL</span>
-                           <h2 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.8] uppercase italic">Priority triage.</h2>
-                           <p className="text-2xl text-slate-400 leading-relaxed font-light italic">Your Tier 3 digital identity allows for instantaneous emergency medical dispatch and bypass of hospital administrative queues.</p>
-                           <button 
-                              className="px-16 py-8 bg-red-600 text-white rounded-full font-black text-3xl hover:bg-red-700 transition-all shadow-[0_30px_60px_-10px_rgba(220,38,38,0.5)] active:scale-95 flex items-center gap-8 group"
-                           >
-                              Engage Life-Link <Ambulance className="w-10 h-10 group-hover:scale-125 transition-transform" />
-                           </button>
-                      </div>
-                      <div className="hidden lg:grid grid-cols-2 gap-10">
-                          {[
-                            { l: 'ER WAIT TIME', v: '2 MINS', i: Clock },
-                            { l: 'BLOOD BANK', v: 'SYNCED', i: Droplets },
-                            { l: 'HMO CREDIT', v: 'UNLIMITED', i: CreditCard },
-                            { l: 'POLICE DISPATCH', v: 'LINKED', i: ShieldCheck }
-                          ].map(stat => (
-                              <div key={stat.l} className="aspect-square bg-white/[0.03] rounded-[4rem] border border-white/10 p-12 flex flex-col justify-center items-center text-center group hover:bg-white/5 transition-all">
-                                  <stat.i className="w-12 h-12 text-emerald-500 mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform" />
-                                  <p className="text-3xl font-black italic mb-2 tracking-tighter uppercase">{stat.v}</p>
-                                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{stat.l}</p>
-                              </div>
-                          ))}
-                      </div>
-                  </div>
-              </div>
-          </div>
-      )}
-
-      {activeTab === 'vault' && (
-          <div className="space-y-16 animate-in fade-in duration-700 max-w-5xl mx-auto">
-              <div className="text-center space-y-6">
-                  <span className="text-emerald-600 font-black uppercase tracking-[0.6em] text-[10px]">ISEYAA CRYPTO VAULT</span>
-                  <h3 className="text-6xl md:text-8xl font-black text-slate-950 uppercase italic tracking-tighter leading-none">Medical Vault.</h3>
-                  <p className="text-2xl text-slate-400 font-light italic">Your records are encrypted with ISEYAA Ledger Protocol. Verified Doctors only.</p>
-              </div>
-
-              <div className="bg-white rounded-[4rem] border-4 border-slate-50 shadow-2xl overflow-hidden">
-                  <div className="p-10 border-b border-slate-50 flex flex-col md:flex-row justify-between gap-8 items-center bg-slate-50/50">
-                      <div className="flex gap-4">
-                          <button className="px-8 py-3 bg-white border-2 border-emerald-500 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">ALL RECORDS</button>
-                          <button className="px-8 py-3 bg-white border border-slate-100 text-slate-400 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all">PRESCRIPTIONS</button>
-                      </div>
-                      <div className="relative group w-full md:w-80">
-                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-emerald-600 transition-colors" />
-                          <input type="text" placeholder="Search archive ID..." className="w-full pl-14 pr-6 py-4 bg-white border border-slate-100 rounded-full outline-none focus:ring-4 focus:ring-emerald-500/10 font-bold text-sm" />
-                      </div>
-                  </div>
-                  <div className="divide-y divide-slate-50">
-                      {MEDICAL_RECORDS.map(record => (
-                          <div key={record.id} className="p-10 flex flex-col md:flex-row justify-between items-center gap-8 hover:bg-slate-50/50 transition-all group">
-                              <div className="flex items-center gap-10">
-                                  <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all group-hover:scale-110 shadow-inner border border-slate-100 ${record.type === 'Lab Result' ? 'bg-blue-50 text-blue-600' : record.type === 'Prescription' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'}`}>
-                                      {record.type === 'Lab Result' ? <Droplets className="w-10 h-10" /> : record.type === 'Prescription' ? <FileText className="w-10 h-10" /> : <Brain className="w-10 h-10" />}
-                                  </div>
-                                  <div>
-                                      <h4 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">{record.title}</h4>
-                                      <div className="flex items-center gap-6 mt-4">
-                                          <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                                              <Calendar className="w-3.5 h-3.5" /> {record.date}
-                                          </div>
-                                          <div className="w-1.5 h-1.5 bg-slate-200 rounded-full"></div>
-                                          <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black uppercase tracking-widest">
-                                              <Stethoscope className="w-3.5 h-3.5" /> {record.doctor}
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                  <span className="text-[10px] font-mono text-slate-300 font-bold uppercase mr-4">{record.fileSize} PDF</span>
-                                  <button className="p-5 bg-white border border-slate-100 rounded-3xl text-slate-400 hover:text-emerald-600 shadow-xl active:scale-90 transition-all"><Eye className="w-7 h-7" /></button>
-                                  <button className="p-5 bg-white border border-slate-100 rounded-3xl text-slate-400 hover:text-emerald-600 shadow-xl active:scale-90 transition-all"><Download className="w-7 h-7" /></button>
-                              </div>
-                          </div>
-                      ))}
-                  </div>
-              </div>
-          </div>
-      )}
-
-      {activeTab === 'hmo' && (
-          <div className="space-y-16 animate-in fade-in duration-700">
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                   <div className="space-y-10">
-                       <h3 className="text-5xl font-black text-slate-950 uppercase italic tracking-tighter leading-none">Policy Oversight.</h3>
-                       <p className="text-xl text-slate-400 font-light italic leading-relaxed">View and manage your active health insurance nodes. Automated renewals are currently toggled <strong>ON</strong> via ISEYAA Wallet.</p>
-                       <div className="bg-emerald-50 rounded-[3.5rem] p-12 border-4 border-emerald-100 space-y-8 relative overflow-hidden">
-                           <div className="absolute top-0 right-0 w-32 h-full bg-emerald-600/5 -skew-x-12 translate-x-10"></div>
-                           <h4 className="text-xs font-black text-emerald-700 uppercase tracking-[0.5em] flex items-center gap-3"><Zap className="w-5 h-5" /> Current Coverage Node</h4>
-                           <div className="space-y-6">
-                               {activePlan.coverage.map(item => (
-                                   <div key={item} className="flex items-center gap-6">
-                                       <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600"><CheckCircle2 className="w-5 h-5" /></div>
-                                       <span className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">{item}</span>
-                                   </div>
-                               ))}
-                           </div>
-                           <button className="w-full mt-10 py-6 bg-emerald-600 text-white rounded-full font-black text-lg hover:bg-emerald-700 shadow-2xl transition-all flex items-center justify-center gap-4">
-                               <Plus className="w-6 h-6" /> UPGRADE COVERAGE
-                           </button>
-                       </div>
-                   </div>
-
-                   <div className="space-y-8">
-                       <div className="bg-white p-12 rounded-[4rem] border-4 border-slate-50 shadow-xl space-y-10">
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.4em]">Policy Ledger</h4>
-                            <div className="space-y-8">
-                                <div className="flex justify-between items-end border-b border-slate-50 pb-8">
-                                    <div>
-                                        <p className="text-[10px] text-slate-400 font-black uppercase mb-1">Last Premium</p>
-                                        <p className="text-4xl font-black text-slate-900 italic tracking-tighter">₦ 12,500</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] text-slate-400 font-black uppercase mb-1">Status</p>
-                                        <span className="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-full text-[10px] font-black border border-emerald-100 uppercase">Paid - Nov 2024</span>
-                                    </div>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] text-slate-400 font-black uppercase mb-1">Next Assessment</p>
-                                        <p className="text-4xl font-black text-slate-900 italic tracking-tighter">01 JAN 2025</p>
-                                    </div>
-                                    <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-300"><Calendar className="w-8 h-8" /></div>
-                                </div>
-                            </div>
-                            <button className="w-full py-6 border-4 border-slate-50 text-slate-400 rounded-full font-black text-[10px] uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all">Download Policy Certificate</button>
-                       </div>
-
-                       <div className="bg-slate-900 rounded-[3rem] p-10 text-white flex items-center justify-between shadow-2xl relative overflow-hidden border-[8px] border-white group cursor-pointer">
-                           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500 rounded-full blur-[80px] opacity-10 -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform"></div>
-                           <div className="relative z-10 space-y-2">
-                               <h4 className="text-3xl font-black uppercase italic tracking-tighter">HMO Wallet.</h4>
-                               <p className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.4em]">Authorized Credits: ₦ 450k</p>
-                           </div>
-                           <div className="relative z-10 p-5 bg-white/5 border border-white/10 rounded-3xl group-hover:bg-emerald-500 transition-colors">
-                               <ArrowRight className="w-10 h-10 text-emerald-400 group-hover:text-white" />
-                           </div>
-                       </div>
-                   </div>
-               </div>
           </div>
       )}
 
       {selectedDoctor && <VendorChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} vendorName={selectedDoctor.name} vendorAvatar={selectedDoctor.avatar} />}
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-      `}} />
     </div>
   );
 };

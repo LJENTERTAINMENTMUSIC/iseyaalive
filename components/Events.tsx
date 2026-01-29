@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Calendar, MapPin, Music, Ticket, Users, Search, Filter, Heart, 
+  Calendar, MapPin, Music, Ticket, Users, Search, Heart, 
   Share2, Clock, QrCode, CheckCircle2, Mic2, Trophy, Palette,
-  ShieldCheck, Video, Plus, TrendingUp, BarChart3, MoreHorizontal,
-  Eye, X, PlusCircle, Trash2, Loader2, Sparkles, Zap, Radio,
+  ShieldCheck, Plus, TrendingUp, BarChart3, 
+  Eye, X, Loader2, Zap, Radio,
   ChevronLeft, ChevronRight, Cpu, Target, Megaphone, Star,
-  Activity, ArrowRight
+  Activity, ArrowRight, ImageOff
 } from 'lucide-react';
 
 interface TicketTier {
@@ -95,6 +95,35 @@ const INITIAL_EVENTS: Event[] = [
   }
 ];
 
+const OptimizedImage: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className={`relative overflow-hidden bg-slate-100 ${className}`}>
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin opacity-20" />
+        </div>
+      )}
+      {hasError ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-200 text-slate-400 p-4 text-center">
+          <ImageOff className="w-10 h-10 mb-2 opacity-50" />
+          <span className="text-[9px] font-black uppercase tracking-widest">Media Node Offline</span>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+          className={`w-full h-full object-cover transition-all duration-1000 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}
+        />
+      )}
+    </div>
+  );
+};
+
 export const Events: React.FC<{ user?: any }> = ({ user }) => {
   const [userMode, setUserMode] = useState<'attendee' | 'organizer'>('attendee');
   const [activeTab, setActiveTab] = useState('All');
@@ -105,20 +134,18 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketSelection, setTicketSelection] = useState<{[key: string]: number}>({});
   
-  // Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const priorityEvents = eventsList.filter(e => e.isPriority || e.isAIRecommended).sort((a, b) => b.neuralScore - a.neuralScore);
 
   const isSuperAdmin = user?.activeRole === 'super-admin';
 
-  // Auto-slide effect (2 seconds for rapid pulse feeling)
   useEffect(() => {
     let interval: any;
     if (isAutoPlaying && priorityEvents.length > 1) {
       interval = setInterval(() => {
         setCurrentSlide(prev => (prev + 1) % priorityEvents.length);
-      }, 2000); 
+      }, 5000); 
     }
     return () => clearInterval(interval);
   }, [isAutoPlaying, priorityEvents.length]);
@@ -228,7 +255,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
     return (
       <div className="flex flex-col h-full bg-[#FDFBF7] overflow-y-auto animate-in fade-in duration-700">
         <div className="relative h-[50vh] md:h-[65vh] shrink-0 overflow-hidden">
-            <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" />
+            <OptimizedImage src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/20 to-transparent"></div>
             
             <div className="absolute top-10 left-10 flex gap-4">
@@ -301,7 +328,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
                       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[120px] opacity-10" />
                       <h3 className="font-black text-xs uppercase tracking-[0.5em] mb-10 opacity-50">Venue Intelligent Map</h3>
                       <div className="aspect-video bg-white/5 rounded-[2.5rem] border border-white/10 flex flex-col items-center justify-center gap-6 relative group overflow-hidden">
-                          <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=1976&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-20 blur-sm scale-110 group-hover:scale-100 transition-transform duration-[10s]" alt="" />
+                          <OptimizedImage src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=1976&auto=format&fit=crop" alt="Venue Map" className="absolute inset-0 w-full h-full opacity-20 blur-sm scale-110 group-hover:scale-100 transition-transform duration-[10s]" />
                           <MapPin className="w-16 h-16 text-emerald-500 animate-bounce relative z-10" />
                           <p className="text-xl font-black tracking-widest relative z-10 uppercase italic">Interactive 3D Grid Syncing...</p>
                           <div className="absolute bottom-6 px-8 py-3 bg-white/10 backdrop-blur rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 z-10">GPS Node Active</div>
@@ -348,14 +375,13 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
   return (
     <div className="bg-[#FDFBF7] min-h-screen">
       
-      {/* CINEMATIC AI FEATURED SLIDER */}
       <section className="relative h-[65vh] w-full bg-slate-900 overflow-hidden">
           {priorityEvents.map((evt, idx) => (
               <div 
                 key={evt.id} 
                 className={`absolute inset-0 transition-all duration-[1500ms] ease-in-out ${idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'}`}
               >
-                  <img src={evt.image} className="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-[10s]" alt="" />
+                  <OptimizedImage src={evt.image} alt={evt.title} className="w-full h-full opacity-50 grayscale hover:grayscale-0 transition-all duration-[10s]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                   
                   <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-20 max-w-7xl mx-auto">
@@ -389,7 +415,6 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
               </div>
           ))}
 
-          {/* Slider Controls */}
           <div className="absolute bottom-12 right-20 flex items-center gap-8 z-20">
               <div className="flex gap-4">
                   {priorityEvents.map((_, i) => (
@@ -407,11 +432,9 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
               </div>
           </div>
 
-          {/* AI Neural Background Effect */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none animate-pulse"></div>
       </section>
 
-      {/* WORLD VIEW BROADCAST MARQUEE */}
       <div className="bg-emerald-600 py-4 overflow-hidden whitespace-nowrap border-b border-white/10 relative z-10 shadow-2xl">
         <div className="flex animate-[marquee_120s_linear_infinite] gap-20 text-[11px] font-black uppercase tracking-[0.4em] text-white/90">
             {eventsList.map(n => (
@@ -424,7 +447,6 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
 
       <main className="max-w-7xl mx-auto px-10 py-24 space-y-32">
           
-          {/* Header Controls */}
           <div className="flex flex-col md:flex-row justify-between items-end gap-10">
               <div className="space-y-6">
                   <span className="text-emerald-600 font-black uppercase tracking-[0.6em] text-[10px] flex items-center gap-4">
@@ -468,7 +490,7 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
                               )}
 
                               <div className="aspect-[4/5] rounded-[3.5rem] overflow-hidden relative mb-10 shadow-2xl">
-                                  <img src={event.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[8s]" alt="" />
+                                  <OptimizedImage src={event.image} alt={event.title} className="w-full h-full group-hover:scale-110 transition-transform duration-[8s]" />
                                   <div className="absolute top-6 left-6 flex flex-col gap-2">
                                       <span className="bg-white/95 backdrop-blur px-5 py-2.5 rounded-full text-[9px] font-black text-emerald-800 border border-white shadow-2xl uppercase tracking-widest flex items-center gap-2">
                                           <Target className="w-3.5 h-3.5" /> Official Node
@@ -504,7 +526,6 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
                   </div>
               </div>
           ) : (
-              /* ORGANIZER PANEL REMAINS POWERFUL */
               <div className="space-y-12 animate-in fade-in duration-700">
                   <div className="bg-white p-12 rounded-[4rem] border-[10px] border-emerald-50 shadow-3xl flex flex-col md:flex-row items-center justify-between gap-12">
                       <div className="flex items-start gap-10">
@@ -536,7 +557,6 @@ export const Events: React.FC<{ user?: any }> = ({ user }) => {
           )}
       </main>
 
-      {/* RENDER MODAL INLINE FOR DISPATCHER FEEL */}
       {isCreating && (
           <div className="fixed inset-0 z-[400] bg-slate-950/98 backdrop-blur-[40px] flex items-center justify-center p-6 animate-in fade-in duration-500">
               <form onSubmit={(e) => { e.preventDefault(); setIsCreating(false); }} className="bg-white w-full max-w-5xl rounded-[5rem] shadow-3xl overflow-hidden border-[15px] border-white/20 flex flex-col max-h-[92vh]">

@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
     X, Loader2, ShieldCheck, ArrowRight, ShieldAlert, User, Store, Building2, ShieldHalf, LayoutGrid
 } from 'lucide-react';
-import { User as UserType, UserRole, KYCStatus } from '../types';
-import { Logo } from './Logo';
+import { User as UserType, UserRole, KYCStatus } from '../types.ts';
+import { Logo } from './Logo.tsx';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -12,7 +11,6 @@ interface AuthModalProps {
   onLogin: (user: UserType) => void;
 }
 
-// Simulated database for persistent approval states
 const APPROVED_EMAILS = new Set<string>(['admin@iseyaa.gov.ng', 'superadmin@iseyaa.gov.ng']);
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
@@ -39,7 +37,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
     if (!selectedRole) return;
     setIsLoading(true);
     
-    // Simulate picking an account from a Google Popup
     setTimeout(() => {
         const mockGmail = selectedRole === 'admin' ? "admin@iseyaa.gov.ng" : 
                           selectedRole === 'super-admin' ? "superadmin@iseyaa.gov.ng" : 
@@ -49,7 +46,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
         setIsLoading(false);
         setStep('verifying');
         
-        // Automated Government Protocol Sync
         setTimeout(() => {
             const isAutoApproved = selectedRole === 'user' || APPROVED_EMAILS.has(mockGmail);
             
@@ -83,7 +79,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
       <div className="absolute inset-0 bg-emerald-950/98 backdrop-blur-3xl transition-opacity" onClick={onClose} />
 
       <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-lg overflow-hidden relative z-10 animate-in zoom-in-95 duration-500 border-[12px] border-white/10">
-        
         <div className="p-10 md:p-14">
             <div className="flex justify-between items-start mb-10">
                 <Logo className="h-10" variant="color" />
@@ -203,7 +198,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
                 </div>
             )}
         </div>
-        
         <div className="bg-slate-950 p-8 text-center text-[10px] text-emerald-500/60 font-black uppercase tracking-[0.5em] border-t border-white/5">
             ISEYAA CENTRAL IDENTITY • CRYPTO-ANCHORED BY VEO-3.1
         </div>

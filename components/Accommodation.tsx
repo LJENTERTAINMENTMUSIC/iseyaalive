@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, MapPin, Calendar, Users, Star, Filter, Heart, 
@@ -10,8 +9,8 @@ import {
   BedDouble, Wifi, Wind, Zap, Coffee, ShieldQuestion, Verified,
   LayoutGrid, Trash2, ListPlus, Banknote
 } from 'lucide-react';
-import { User } from '../types';
-import { PaystackModal } from './PaystackModal';
+import { User } from '../types.ts';
+import { PaystackModal } from './PaystackModal.tsx';
 
 const OGUN_LOCATIONS = [
   "Olumo Rock, Abeokuta", 
@@ -54,7 +53,7 @@ interface Property {
   title: string; 
   type: 'Hotel' | 'Short-let' | 'Resort' | 'Homestay';
   location: string; 
-  price: number; // Starting "From" price
+  price: number; 
   rating: number; 
   reviews: number; 
   image: string; 
@@ -62,7 +61,7 @@ interface Property {
   isVerifiedHost: boolean;
   complianceScore: number; 
   isNew?: boolean;
-  bedrooms: number; // Total Units
+  bedrooms: number; 
   roomInventory: RoomInventory[];
   amenities: string[];
 }

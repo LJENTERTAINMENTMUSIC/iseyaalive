@@ -7,8 +7,6 @@ Tone: Professional, authoritative, welcoming.
 Capabilities: Maps-grounding for directions and venue discovery.
 `;
 
-// Fix: Access API key directly from process.env.API_KEY as per GenAI coding guidelines.
-// This resolves the issue where 'process' was being accessed through the 'window' object incorrectly.
 const getAIClient = () => {
     try {
         const apiKey = process.env.API_KEY;
@@ -28,14 +26,11 @@ export const sendMessageToGemini = async (
     const ai = getAIClient();
     if (!ai) return { text: "The AI Central Hub is currently in maintenance mode. Please verify your connection to the ISEYAA network." };
 
-    // Standardize history for the API
     const formattedHistory = history.map(h => ({
       role: h.role === 'model' ? 'model' : 'user',
       parts: h.parts
     }));
 
-    // Fix: Using gemini-flash-lite-latest (2.5 series) for Maps grounding support.
-    // Coding guidelines state that Maps grounding is only supported in Gemini 2.5 series models.
     const response = await ai.models.generateContent({
       model: 'gemini-flash-lite-latest', 
       contents: [...formattedHistory, { role: 'user', parts: [{ text: message }] }],
@@ -61,9 +56,6 @@ export const fetchOgunLatestNews = async (): Promise<any[]> => {
     const ai = getAIClient();
     if (!ai) return [];
 
-    // Fix: Adhering to search grounding rules. Removed responseMimeType: "application/json"
-    // and responseSchema because the guidelines state that output might not be JSON when grounding is used.
-    // Search results with citations often break strict JSON formatting.
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Search for recent news about Ogun State, Nigeria. Focus on government updates, economy, sports, and culture.`,
@@ -72,8 +64,6 @@ export const fetchOgunLatestNews = async (): Promise<any[]> => {
       }
     });
 
-    // Fix: Extracting source URLs directly from groundingChunks metadata as required by the coding guidelines.
-    // This ensures we have verifiable source links for the news items displayed in the UI.
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     
     return chunks
@@ -102,8 +92,6 @@ export const generateImageWithGemini = async (prompt: string): Promise<{ text: s
       contents: { parts: [{ text: `High-fidelity cinematic visual: ${prompt} with Ogun State heritage elements.` }] }
     });
 
-    // Fix: Iterating through candidate parts to find the image part (inlineData).
-    // Nano banana series models (like gemini-2.5-flash-image) can return multiple parts including text.
     for (const part of response.candidates[0].content.parts) {
       if (part.inlineData) {
         return { text: "Visual synthesized.", imageUrl: `data:image/png;base64,${part.inlineData.data}` };

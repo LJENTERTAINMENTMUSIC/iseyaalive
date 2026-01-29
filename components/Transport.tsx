@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   MapPin, Navigation, Car, Clock, User, Star, Phone, Bus, Ship, 
@@ -6,7 +5,7 @@ import {
   X, ChevronRight, Search, Power, Bell, TrendingUp, Radio, 
   CheckCircle2, Loader2, Play, ArrowRight, MessageCircle as MessageIcon
 } from 'lucide-react';
-import { VendorChat } from './VendorChat';
+import { VendorChat } from './VendorChat.tsx';
 
 const OGUN_PLACES = [
   "MKO Abiola Stadium, Abeokuta", "Kuto Motor Park", "Sagamu Interchange", 
@@ -349,7 +348,7 @@ export const Transport: React.FC = () => {
                                      <div className="absolute -bottom-2 -right-2 bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-white flex items-center gap-1"><Star className="w-3 h-3 fill-current" /> {incomingRequest.rating}</div>
                                 </div>
                                 <div className="text-center md:text-left flex-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2">Target Node Intercept</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-0.4em mb-2">Target Node Intercept</p>
                                     <h3 className="text-5xl font-black text-slate-900 tracking-tighter italic uppercase">{incomingRequest.user}</h3>
                                     <p className="text-emerald-600 font-black text-4xl mt-3 tracking-tighter italic">{incomingRequest.fare}</p>
                                 </div>

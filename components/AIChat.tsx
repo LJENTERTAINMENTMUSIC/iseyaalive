@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, Image as ImageIcon, Download, MapPin, ExternalLink, RefreshCcw, ShieldCheck } from 'lucide-react';
-import { sendMessageToGemini, generateImageWithGemini } from '../services/geminiService';
-import { ChatMessage } from '../types';
+import { sendMessageToGemini, generateImageWithGemini } from '../services/geminiService.ts';
+import { ChatMessage } from '../types.ts';
 
 interface ExtendedChatMessage extends ChatMessage {
     groundingChunks?: any[];
@@ -96,7 +95,7 @@ export const AIChat: React.FC = () => {
           <div>
             <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Command Agent</h2>
             <p className="text-[9px] text-emerald-600 font-black uppercase tracking-[0.4em] mt-1.5 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></div> Live Neural Link
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Live Neural Link
             </p>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -6,7 +5,7 @@ import {
 import { 
   Users, CreditCard, Ticket, TrendingUp, AlertCircle, Zap, ShieldCheck, ArrowUpRight, Globe, Activity 
 } from 'lucide-react';
-import { StatCardProps, AppView } from '../types';
+import { StatCardProps, AppView } from '../types.ts';
 
 interface DashboardProps {
   onNavigate: (view: AppView) => void;
