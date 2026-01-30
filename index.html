@@ -5,100 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IṢẸ́YÁÁ | Ogun State Digital OS</title>
     <meta name="description" content="Integrated Sports, Events, Youth, Arts & Attractions. The official digital economic engine of Ogun State.">
-    
-    <!-- process.env Polyfill -->
-    <script>
-      window.process = { 
-        env: { 
-          API_KEY: '',
-          NODE_ENV: 'production'
-        } 
-      };
-      
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        console.error('ISEYAA System Error: ', msg, url, lineNo, columnNo, error);
-        return false;
-      };
-    </script>
-
-    <!-- Core Styles & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              emerald: {
-                50: '#F1FDF6', 100: '#DEFAE9', 200: '#C0F4D6', 300: '#93EAB9',
-                400: '#60D995', 500: '#05A446', 600: '#038237', 700: '#03672D',
-                800: '#035226', 900: '#024321', 950: '#012513',
-              },
-              brand: { yellow: '#FFE94C', dark: '#012513', cream: '#FDFBF7' }
-            },
-            fontFamily: { sans: ['Inter', 'sans-serif'] },
-            animation: {
-              'marquee': 'marquee 120s linear infinite',
-              'marquee-reverse': 'marquee-reverse 50s linear infinite',
-              'spin-slow': 'spin 12s linear infinite',
-              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      html { scroll-behavior: smooth; }
-      body { 
-        font-family: 'Inter', sans-serif; 
-        background-color: #FDFBF7; 
-        color: #0f172a; 
-        margin: 0; 
-        padding: 0;
-        -webkit-font-smoothing: antialiased;
-      }
-      ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #05A446; border-radius: 10px; }
-      @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-      @keyframes marquee-reverse { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
-      .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); }
-      .custom-scrollbar-none::-webkit-scrollbar { display: none; }
-    </style>
-    
-    <script type="importmap">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react",
-    "@google/genai": "https://esm.sh/@google/genai@1.38.0",
-    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
-  </head>
-  <body class="overflow-x-hidden">
-    <div id="root">
-        <div class="flex items-center justify-center h-screen bg-[#FDFBF7]">
-            <div class="flex flex-col items-center gap-6">
-                <div class="relative w-20 h-20">
-                    <div class="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <div class="text-center space-y-2">
-                    <p class="text-[11px] font-black uppercase tracking-[0.6em] text-emerald-800 animate-pulse">IṢẸ́YÁÁ PROTOCOL V4.8</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Authorized Production Mode...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script type="text/babel" data-type="module" src="./index.tsx"></script>
+</head>
+  <body class="bg-[#FDFBF7] overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
